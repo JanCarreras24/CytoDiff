@@ -1,0 +1,5 @@
+fewshot_data_dir:
+    matek: '/home/aih/jan.boada/project/codes/datasets/jan/data/matek/real_train_fewshot/seed0'
+
+model_dir:
+    sd2.1: '../training/model/hub/models--stabilityai--stable-diffusion-2-1-base/snapshots/5ede9e4bf3e3fd1cb0ef2f7a3fff13ee514fdf06'
