@@ -1,5 +1,5 @@
 
-save_dir: '../results/images'
+save_dir: '../results/synthetic'
 datadream_dir: '../training/output'
 model_dir:
     sd2.1: '../training/model/hub/models--stabilityai--stable-diffusion-2-1-base/snapshots/5ede9e4bf3e3fd1cb0ef2f7a3fff13ee514fdf06'
