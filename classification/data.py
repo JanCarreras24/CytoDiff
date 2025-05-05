@@ -11,6 +11,24 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 import torchvision as tv
 from collections import defaultdict
+import copy
+import h5py
+from torch.utils.data import Dataset, DataLoader
+import matplotlib.pyplot as plt
+import torchvision
+from torchvision import transforms as T
+import numpy as np
+from PIL import Image
+import pandas as pd
+import random
+import torchvision.transforms as tfm
+from imageio import imread
+from skimage.color import rgb2hsv, hsv2rgb
+from data_loader.augmenter import HedLighterColorAugmenter, HedLightColorAugmenter, HedStrongColorAugmenter
+import os
+
+from dataset_wbc import DatasetMarr, labels_map, T
+
 
 from utils import make_dirs
 from util_data import (
@@ -27,7 +45,6 @@ CLIP_NORM_MEAN = (0.48145466, 0.4578275, 0.40821073)
 CLIP_NORM_STD = (0.26862954, 0.26130258, 0.27577711)
 
 def get_transforms(model_type):
-
     if model_type == "clip":
         norm_mean = CLIP_NORM_MEAN
         norm_std = CLIP_NORM_STD
@@ -35,46 +52,29 @@ def get_transforms(model_type):
         norm_mean = NORM_MEAN
         norm_std = NORM_STD
 
-    aux_transform = tv.transforms.Compose([
-        tv.transforms.RandomHorizontalFlip(),
-        tv.transforms.RandomApply(
-            [
-                tv.transforms.ColorJitter(
-                    brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1
-                )
-            ],
-            p=0.8,
-        ),
-        tv.transforms.RandomGrayscale(p=0.2),
-        GaussianBlur(0.2),
-        Solarization(0.2),
-    ])
-    train_transform = tv.transforms.Compose([
-        #tv.transforms.Lambda(lambda x: x.convert("RGB")),
-        tv.transforms.RandAugment(),
-        tv.transforms.RandomResizedCrop(
-            224, 
-            scale=(0.25, 1.0), 
-            interpolation=tv.transforms.InterpolationMode.BICUBIC,
-            antialias=None,
-        ),
-        aux_transform,
-        tv.transforms.ToTensor(),
-        tv.transforms.Normalize(norm_mean, norm_std)
+    # Train transformations from dataset_wbc.py)
+    train_transform = T.Compose([
+        T.RandomResizedCrop(size=384, scale=(0.8, 1.0), ratio=(0.8, 1.2)),
+        T.RandomHorizontalFlip(0.5),
+        T.RandomVerticalFlip(0.5),
+        T.RandomApply([T.RandomRotation((0, 180))], p=0.33),
+        T.RandomApply([T.ColorJitter(brightness=0.5, contrast=0, saturation=1, hue=0.3)], p=0.33),
+        T.RandomApply([T.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1))], p=0.33),
+        T.RandomApply([T.RandomAdjustSharpness(sharpness_factor=0.8)], p=0.33),
+        T.ToTensor(),
+        T.Normalize(mean=norm_mean, std=norm_std)
     ])
 
-    test_transform = tv.transforms.Compose([
-        #tv.transforms.Lambda(lambda x: x.convert("RGB")),
-        tv.transforms.Resize(
-            224, 
-            interpolation=tv.transforms.functional.InterpolationMode.BICUBIC
-        ),
-        tv.transforms.CenterCrop(224),
-        tv.transforms.ToTensor(),
-        tv.transforms.Normalize(norm_mean, norm_std)
-    ])
+    # Test transformations
+    test_transform = T.Compose([
+        T.Resize(384),  # same as training
+        T.ToTensor(),
+        T.Normalize(mean=norm_mean, std=norm_std)
+    ]) 
 
     return train_transform, test_transform
+
+
 
 class MatekData(Dataset):
     def __init__(self, data_root, metadata_root, transform, target_label = None, n_img_per_cls=None, dataset="matek", 
@@ -243,7 +243,7 @@ class DatasetSynthImage(Dataset):
         transform, 
         target_label=None, 
         n_img_per_cls=None,
-        dataset='imagenet', 
+        dataset='matek', 
         n_shot=0,
         real_train_fewshot_data_dir='', 
         is_pooled_fewshot=False, 
@@ -540,7 +540,7 @@ def split_food(real_train_data_dir, train_transform, split):
     return train_dataset
 
 
-def split_pets(real_train_data_dir, train_transform, split):
+def split_pets(real_train_data_dir, train_transform, test_transform, split):
     import csv
     pets_path_train = os.path.join(real_train_data_dir, 'train')
     train_dataset = tv.datasets.OxfordIIITPet(
@@ -555,7 +555,7 @@ def split_pets(real_train_data_dir, train_transform, split):
         split='test',
         target_types='category',
         download=True,
-        transform=train_transform,
+        transform=test_transform,
     )
     train_dataset._images = train_dataset._images + test_dataset._images
     train_dataset._labels = train_dataset._labels + test_dataset._labels
@@ -578,220 +578,61 @@ def split_pets(real_train_data_dir, train_transform, split):
 
 
 def get_data_loader(
-    real_train_data_dir="",
-    real_test_data_dir="",
-    metadata_dir="metadata",
-    dataset="matek", 
+    dataroot,  # Path principal para DatasetMarr
+    dataset_selection="matek",  # Dataset a seleccionar
     bs=32, 
     eval_bs=32,
     is_rand_aug=True,
-    target_label=None,
-    n_img_per_cls=None,
-    is_synth_train=False,
-    n_shot=0,
-    real_train_fewshot_data_dir='',
-    is_pooled_fewshot=False,
     model_type=None,
+    fold=0,  # Fold para k-fold cross-validation
+    is_hsv=True,  # Control de HSV
+    is_hed=True,  # Control de HED
 ):
-
+    # Obtener las transformaciones
     train_transform, test_transform = get_transforms(model_type)
 
-    if is_synth_train:
-        train_loader = None
-    else:
-        if dataset == 'matek':
-            train_dataset = MatekData(
-            data_root=real_train_data_dir,
-            metadata_root=ospj(metadata_dir, 'train'),
-            transform=train_transform if is_rand_aug else test_transform,
-            target_label=target_label,
-            n_img_per_cls=n_img_per_cls,
-            dataset=dataset,
-            n_shot=n_shot,
-            real_train_fewshot_data_dir=real_train_fewshot_data_dir,
-            is_pooled_fewshot=is_pooled_fewshot,
-            )
-        elif dataset == 'imagenet':
-            train_dataset = ImageNetDatasetFromMetadata(
-            data_root=real_train_data_dir,
-            metadata_root=ospj(metadata_dir, 'train'),
-            transform=train_transform if is_rand_aug else test_transform,
-            proxy=False,
-            target_label=target_label,
-            n_img_per_cls=n_img_per_cls,
-            dataset=dataset,
-            n_shot=n_shot,
-            real_train_fewshot_data_dir=real_train_fewshot_data_dir,
-            is_pooled_fewshot=is_pooled_fewshot,
-            )
-        elif dataset == 'pets':
-            train_dataset = split_pets(real_train_data_dir, train_transform, 'train')
+    # Crear el dataset de entrenamiento usando DatasetMarr
+    train_dataset = DatasetMarr(
+        dataroot=dataroot,
+        dataset_selection=dataset_selection,
+        labels_map=labels_map,
+        fold=fold,
+        transform=train_transform if is_rand_aug else test_transform,
+        state='train',
+        is_hsv=is_hsv,
+        is_hed=is_hed,
+    )
 
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'stl10':
-            stl10_path_train = os.path.join(real_train_data_dir, 'train')
-            train_dataset = tv.datasets.STL10(
-                root=stl10_path_train,
-                split='train',
-                download=True,
-                transform=train_transform,
-            )
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'food101':
-            train_dataset = split_food(real_train_data_dir, train_transform, 'train')
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'fgvc_aircraft':
-            aircraft_path_train = os.path.join(real_train_data_dir, 'train')
-            train_dataset = tv.datasets.FGVCAircraft(
-                root=aircraft_path_train,
-                split='trainval',
-                annotation_level='variant',
-                transform=train_transform,
-                download=True,
-            )
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'eurosat':
-            eurosat_path_train = os.path.join(real_train_data_dir, 'train')
-            import ssl
-            ssl._create_default_https_context = ssl._create_unverified_context
-            train_dataset = tv.datasets.EuroSAT(
-                root=eurosat_path_train,
-                transform=train_transform,
-                download=True,
-            )
-            train_dataset = split_eurosat(eurosat_path_train, 'train', train_dataset)
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'cars':
-            cars_path_train = os.path.join(real_train_data_dir, 'train')
-            train_dataset = tv.datasets.StanfordCars(
-                root=cars_path_train,
-                split='train',
-                transform=train_transform,
-                download=False,
-            )
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'dtd':
-            train_dataset = split_dtd(real_train_data_dir, train_transform, 'train')
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'flowers102':
-            train_dataset = split_flowers(real_train_data_dir, train_transform, 'train')
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'sun397':
-            sun_path_train = os.path.join(real_train_data_dir, 'train')
-            train_dataset = tv.datasets.SUN397(
-                root=sun_path_train,
-                transform=train_transform,
-                download=True,
-            )
-            train_dataset = split_sun(sun_path_train, 'train', train_dataset)
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls, dataset_name=dataset)
-        elif dataset == 'caltech101':
-            caltech_path_train = os.path.join(real_train_data_dir, 'train')
-            train_dataset = tv.datasets.Caltech101(
-                root=caltech_path_train,
-                transform=train_transform,
-                download=True,
-            )
-            train_dataset = split_caltech(caltech_path_train, 'train', train_dataset)
-            train_dataset = filter_dset(dataset=train_dataset, n_img_per_cls=n_img_per_cls,
-                                        dataset_name=dataset)
-        else:
-            raise ValueError("Please specify a valid dataset.")
-        train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=bs, 
-            sampler=None,
-            shuffle=is_rand_aug,
-            prefetch_factor=4, pin_memory=True,
-            num_workers=16)
+    # Crear el DataLoader para entrenamiento
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, 
+        batch_size=bs, 
+        shuffle=is_rand_aug,
+        prefetch_factor=4, 
+        pin_memory=True,
+        num_workers=8 #16
+    )
 
-#####################################################
-#####################################################
-#####################################################
+    # Crear el dataset de prueba usando DatasetMarr
+    test_dataset = DatasetMarr(
+        dataroot=dataroot,
+        dataset_selection=dataset_selection,
+        labels_map=labels_map,
+        fold=fold,
+        transform=test_transform,
+        state='test',
+        is_hsv=is_hsv,
+        is_hed=is_hed,
+    )
 
-    if dataset == 'matek':
-        test_dataset = MatekData(
-            data_root=real_test_data_dir,
-            metadata_root=ospj(metadata_dir, 'test'),
-            transform=test_transform,
-            target_label=target_label,
-            dataset=dataset,
-        )
-    elif dataset == 'imagenet':
-        test_dataset = DatasetFromMetadata(
-            data_root=real_test_data_dir,
-            metadata_root=ospj(metadata_dir, 'test'),
-            transform=test_transform,
-            proxy=False,
-            target_label=target_label,
-            dataset=dataset,
-        )
-    # TODO: update arguments
-    elif dataset == 'pets':
-        test_dataset = split_pets(real_train_data_dir, test_transform, 'test')
-    elif dataset == 'stl10':
-        stl10_path_test = os.path.join(real_train_data_dir, 'train')
-        test_dataset = tv.datasets.STL10(
-            root=stl10_path_test,
-            split='test',
-            download=True,
-            transform=test_transform,
-        )
-    elif dataset == 'food101':
-        test_dataset = split_food(real_train_data_dir, test_transform, 'test')
-    elif dataset == 'fgvc_aircraft':
-        aircraft_path_test = os.path.join(real_train_data_dir, 'train')
-        test_dataset = tv.datasets.FGVCAircraft(
-            root=aircraft_path_test,
-            split='test',
-            annotation_level='variant',
-            transform=test_transform,
-            download=True,
-        )
-    elif dataset == 'eurosat':
-        eurosat_path_test = os.path.join(real_train_data_dir, 'train')
-        import ssl
-        ssl._create_default_https_context = ssl._create_unverified_context
-        test_dataset = tv.datasets.EuroSAT(
-            root=eurosat_path_test,
-            transform=test_transform,
-            download=True,
-        )
-        test_dataset = split_eurosat(eurosat_path_test, 'train', test_dataset)
-    elif dataset == 'cars':
-        # note: this must be train, because the Cars dataset had to be downloaded by hand and is kept in the same
-        # directory as the training data
-        cars_path_test = os.path.join(real_train_data_dir, 'train')
-        test_dataset = tv.datasets.StanfordCars(
-            root=cars_path_test,
-            split='test',
-            transform=test_transform,
-            download=False,
-        )
-    elif dataset == 'dtd':
-        test_dataset = split_dtd(real_train_data_dir, test_transform, 'train')
-    elif dataset == 'flowers102':
-        test_dataset = split_flowers(real_train_data_dir, test_transform, 'train')
-    elif dataset == 'sun397':
-        sun_path_test = os.path.join(real_train_data_dir, 'train')
-        test_dataset = tv.datasets.SUN397(
-            root=sun_path_test,
-            transform=test_transform,
-            download=True,
-        )
-        test_dataset = split_sun(sun_path_test, 'test', test_dataset)
-    elif dataset == 'caltech101':
-        caltech_path_test = os.path.join(real_train_data_dir, 'train')
-        test_dataset = tv.datasets.Caltech101(
-            root=caltech_path_test,
-            transform=test_transform,
-            download=True,
-        )
-        test_dataset = split_caltech(caltech_path_test, 'test', test_dataset)
-    else:
-        raise ValueError("Please specify a valid dataset.")
+    # Crear el DataLoader para prueba
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=eval_bs, shuffle=False, 
-        num_workers=16, pin_memory=True)
+        test_dataset, 
+        batch_size=eval_bs, 
+        shuffle=False, 
+        num_workers=8, #16
+        pin_memory=True
+    )
 
     return train_loader, test_loader
 
@@ -802,7 +643,7 @@ def get_synth_train_data_loader(
     is_rand_aug=True,
     target_label=None,
     n_img_per_cls=None,
-    dataset='imagenet',
+    dataset='matek',
     n_shot=0,
     real_train_fewshot_data_dir='',
     is_pooled_fewshot=False,
@@ -825,9 +666,8 @@ def get_synth_train_data_loader(
         train_dataset, batch_size=bs, 
         sampler=None,
         shuffle=is_rand_aug,
-        num_workers=16, pin_memory=True,
+        num_workers=8, pin_memory=True, #16
     )
     return train_loader
-
 
 

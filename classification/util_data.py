@@ -479,6 +479,25 @@ TEMPLATES_SMALL = [
     "a {}photo of a small {}",
 ]
 
+PROMPTS_BY_CLASS = {
+    "Basophil": "Photorealistic basophil under microscope, peripheral blood smear, large bilobed nucleus, dark blue-purple granules densely packed in cytoplasm, surrounded by red blood cells, medical cytology, high detail, clinical pathology, Wright-Giemsa stain, white background, soft lighting, 40x magnification, ultra-detailed, sharp focus, macro lens.",
+    "Erythroblast": "High-resolution microscopic image of an erythroblast, large round nucleus with open chromatin, basophilic cytoplasm, mitotic figure possible, surrounded by maturing red blood cells, stained with Wright-Giemsa, peripheral blood smear, soft lighting, sharp focus, 40x magnification, clinical pathology.",
+    "Eosinophil": "Detailed eosinophil cell under microscope, bi-lobed nucleus, bright orange-red granules evenly distributed, slightly blue cytoplasm, peripheral blood smear, surrounded by red blood cells, medical cytology, Wright-Giemsa stain, white background, 40x magnification, realistic texture, ultra-detailed, high-resolution.",
+    "Smudge cell": "High-resolution smudge cell under microscope, peripheral blood smear, ruptured lymphocyte with smeared chromatin, no intact cytoplasm, ghost-like appearance, Wright-Giemsa stain, surrounded by red blood cells, clinical pathology, 40x magnification, soft lighting, ultra-detailed, sharp focus, medical cytology slide.",
+    "Atypical Lymphocyte": "Microscopic image of an atypical lymphocyte, large irregular nucleus with condensed chromatin, abundant pale blue cytoplasm with irregular shape, possible cytoplasmic border indentation, peripheral blood smear, Wright-Giemsa stain, high detail, realistic texture, clinical pathology, 40x magnification, ultra-detailed, sharp focus.",
+    "Typical Lymphocyte": "Sharp microscopic image of a normal lymphocyte, round nucleus taking up most of the cell, minimal cytoplasm with pale blue stain, high-resolution, peripheral blood smear, Wright-Giemsa stain, 40x magnification, clinical pathology, soft lighting, ultra-detailed, medical cytology slide.",
+    "Metamyelocyte": "Photorealistic metamyelocyte under microscope, peripheral blood smear, kidney-shaped nucleus with condensed chromatin, moderate cytoplasm with fine pink granules, surrounded by red blood cells, Wright-Giemsa stain, high-resolution, 40x magnification, clinical pathology, sharp focus, ultra-detailed.",
+    "Monoblast": "Microscopic image of a monoblast, peripheral blood smear, large round nucleus with fine chromatin, multiple prominent nucleoli, deep blue cytoplasm with a high nucleus-to-cytoplasm ratio, possible cytoplasmic vacuoles, Wright-Giemsa stain, high-resolution, 40x magnification, clinical pathology, ultra-detailed, sharp focus.",
+    "Monocyte": "Photorealistic monocyte under microscope, peripheral blood smear, large kidney-shaped or horseshoe-shaped nucleus, abundant blue-gray cytoplasm with scattered vacuoles, irregular cell border, surrounded by red blood cells, high-resolution, medical cytology, Wright-Giemsa stain, 40x magnification, clinical pathology, ultra-detailed.",
+    "Myelocyte": "Microscopic image of a myelocyte, round or oval nucleus slightly off-center, moderate cytoplasm with fine granules, Wright-Giemsa stain, peripheral blood smear, surrounded by red blood cells, clinical pathology, 40x magnification, realistic blood smear background, sharp focus, ultra-detailed.",
+    "Myeloblast": "High-resolution myeloblast in peripheral blood smear, large round nucleus with fine chromatin, visible nucleoli, scant basophilic cytoplasm, no granules, Wright-Giemsa stain, high detail, sharp focus, 40x magnification, medical cytology.",
+    "Band Neutrophil": "Photorealistic band neutrophil under microscope, peripheral blood smear, C-shaped or horseshoe-shaped nucleus with smooth chromatin, pink cytoplasm with fine granules, surrounded by red blood cells, Wright-Giemsa stain, high-resolution, 40x magnification, medical cytology, ultra-detailed.",
+    "Segmented Neutrophil": "Photorealistic segmented neutrophil cell under microscope, peripheral blood smear, multi-lobed nucleus (3–5 lobes) with thin chromatin strands, pale pink cytoplasm with fine granules, surrounded by red blood cells, medical cytology, high detail, clinical pathology, Wright-Giemsa stain, white background, soft lighting, 40x magnification, scientific illustration style, sharp focus, ultra-detailed, macro lens.",
+    "Promyelocyte Bilobed": "Detailed microscopic image of a bilobed promyelocyte, peripheral blood smear, two distinct nuclear lobes, cytoplasm filled with azurophilic granules, Wright-Giemsa stain, high-resolution, medical cytology, 40x magnification, sharp focus, realistic texture.",
+    "Promyelocyte": "Photorealistic promyelocyte in peripheral blood smear, large round nucleus with visible nucleoli, deep blue cytoplasm with prominent azurophilic granules, Wright-Giemsa stain, ultra-detailed, medical cytology, 40x magnification, sharp focus, high-resolution.",
+}
+
+
 
 class UnNormalize(object):
     def __init__(self, 
@@ -581,7 +600,6 @@ class Solarization(object):
             return ImageOps.solarize(img)
         else:
             return img
-
 
 
 

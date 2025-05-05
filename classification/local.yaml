@@ -1,15 +1,19 @@
 wandb_key: c8402d246f6c85ba56487bb7f4d15b5e3b45e781 #WANDB_KEY
-metadata_dir: metadata/matek
+metadata_dir: /home/aih/jan.boada/project/codes/classification/metadata/matek
 clip_download_dir: CLIP_CHECKPOINT_PATH
-synth_train_data_dir: '../generation/output_synthetic_class_wise_template27/matek/sd2.1/gs2.0_nis50/shot16_seed0_template27_lr0.0001_ep200/train/' #GLOBAL_PATH_TO_SYNTH_DATA_DIR
+
+dataroot: '/home/aih/jan.boada/project/codes/classification'
+
+synth_train_data_dir: '/ictstr01/home/aih/jan.boada/project/codes/results/images/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train' #GLOBAL_PATH_TO_SYNTH_DATA_DIR
 
 real_train_data_dir:
-    matek: '../../../../../data/AML_classes' #PATH_TO_REAL_TRAIN_DATA_DIR
+    matek: '/home/aih/jan.boada/project/codes/classification/metadata/matek/train' #PATH_TO_REAL_TRAIN_DATA_DIR
 
 real_test_data_dir:
-    matek: '../../../../../data/AML_classes' #PATH_TO_REAL_TEST_DATA_DIR
+    matek: '/home/aih/jan.boada/project/codes/classification/metadata/matek/test' #PATH_TO_REAL_TEST_DATA_DIR
 
 real_train_fewshot_data_dir: 
-    matek: '../../../../../data/AML_classes' #PATH_TO_FEWSHOT_DATA_DIR
+    matek: '/home/aih/jan.boada/project/codes/datasets/data/matek/real_train_fewshot/seed0' #PATH_TO_FEWSHOT_DATA_DIR
+
 
 

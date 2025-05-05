@@ -1,5 +1,3 @@
-
-
 import os
 import sys
 import json
@@ -27,24 +25,21 @@ from config import get_args
 from data import get_data_loader, get_synth_train_data_loader
 from models.clip import CLIP
 from models.resnet50 import ResNet50
-from util_data import SUBSET_NAMES
+from util_data import SUBSET_NAMES, PROMPTS_BY_CLASS
 
 
 
 def load_data_loader(args):
     train_loader, test_loader = get_data_loader(
-        real_train_data_dir=args.real_train_data_dir,
-        real_test_data_dir=args.real_test_data_dir,
-        metadata_dir=args.metadata_dir,
-        dataset=args.dataset, 
+        dataroot=args.dataroot,  # Path 
+        dataset_selection=args.dataset_selection,  # Dataset
         bs=args.batch_size,
         eval_bs=args.batch_size_eval,
-        n_img_per_cls=args.n_img_per_cls,
-        is_synth_train=args.is_synth_train,
-        n_shot=args.n_shot,
-        real_train_fewshot_data_dir=args.real_train_fewshot_data_dir,
-        is_pooled_fewshot=args.is_pooled_fewshot,
+        is_rand_aug=args.is_rand_aug,
         model_type=args.model_type,
+        fold=args.fold,  # Fold para k-fold cross-validation
+        is_hsv=args.is_hsv,  # Control de HSV
+        is_hed=args.is_hed,  # Control de HED
     )
     return train_loader, test_loader
 
@@ -55,7 +50,7 @@ def load_synth_train_data_loader(args):
         synth_train_data_dir=args.synth_train_data_dir,
         bs=args.batch_size,
         n_img_per_cls=args.n_img_per_cls,
-        dataset=args.dataset,
+        dataset=args.dataset_selection,
         n_shot=args.n_shot,
         real_train_fewshot_data_dir=args.real_train_fewshot_data_dir,
         is_pooled_fewshot=args.is_pooled_fewshot,
@@ -65,7 +60,7 @@ def load_synth_train_data_loader(args):
 
 
 def main(args):
-    args.n_classes = len(SUBSET_NAMES[args.dataset])
+    args.n_classes = len(SUBSET_NAMES[args.dataset_selection])
 
     os.makedirs(args.output_dir, exist_ok=True)
 
@@ -85,9 +80,8 @@ def main(args):
     # Model and optimizer
     # ==================================================
     if args.model_type == "clip":
-        # TODO
         model = CLIP(
-            dataset=args.dataset,
+            dataset=args.dataset_selection,
             is_lora_image=args.is_lora_image,
             is_lora_text=args.is_lora_text,
             clip_download_dir=args.clip_download_dir,
@@ -367,8 +361,8 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args):
             for cls_idx in range(args.n_classes)
         ]
         for cls_idx, acc in enumerate(acc_per_class):
-            print("{} [{}]: {}".format(SUBSET_NAMES[args.dataset][cls_idx], cls_idx, str(acc)))
-            stat_dict[SUBSET_NAMES[args.dataset][cls_idx] + '_cls-acc'] = acc
+            print("{} [{}]: {}".format(SUBSET_NAMES[args.dataset_selection][cls_idx], cls_idx, str(acc)))
+            stat_dict[SUBSET_NAMES[args.dataset_selection][cls_idx] + '_cls-acc'] = acc
 
     return stat_dict
 
@@ -399,7 +393,10 @@ def save_model(args, model, optimizer, epoch, fp16_scaler, file_name):
 
 if __name__ == "__main__":
     try:
+        print("Inicio del script...")
         args = get_args()
+        print(f"Argumentos recibidos: {args}")
         main(args)
+        print("Fin del script.")
     except Exception as e:
-        print(traceback.format_exc())
+        print(f"Error durante la ejecución: {e}")

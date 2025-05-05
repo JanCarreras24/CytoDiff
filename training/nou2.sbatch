@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH -t 24:00:00
 #SBATCH -c 8
-#SBATCH --mem=128G
+#SBATCH --mem=256G
 #SBATCH --nice=10000
 
 source $HOME/.bashrc
@@ -23,9 +23,9 @@ SPLIT_IDX=15
 
 DATASET="matek"
 N_CLS=15
-FEWSHOT_SEED="seed5"
-N_SHOT=16
-NUM_TRAIN_EPOCH=200
+FEWSHOT_SEED="seed6"
+N_SHOT=16    # 1, 4, 8, 11 or 16 --> few-shot
+NUM_TRAIN_EPOCH=300
 
 START_RANGE=1
 END_RANGE=15
@@ -45,7 +45,6 @@ echo "FINAL_END_RANGE: $FINAL_END_RANGE"
 # Ejecutar el script para cada clase
 for CLASS_IDX in "${CLASS_IDXS[@]}"; do
     CUDA_VISIBLE_DEVICES=$GPU python main_2.py \
-    --seed=2 \
     --dataset=$DATASET \
     --n_template=1 \
     --fewshot_seed=$FEWSHOT_SEED \
