@@ -1,4 +1,3 @@
-
 """
 Parts of this code were provided by RadboudUMC for the ExaMode consortium.
 See README file for credits.
