@@ -1,3 +1,5 @@
+# Generate csv for classification, with 5 folds for each image, justusing using train and test
+
 import os
 import pandas as pd
 import random

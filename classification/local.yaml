@@ -2,7 +2,7 @@ wandb_key: c8402d246f6c85ba56487bb7f4d15b5e3b45e781 #WANDB_KEY
 metadata_dir: /home/aih/jan.boada/project/codes/classification/metadata/matek
 clip_download_dir: CLIP_CHECKPOINT_PATH
 
-dataroot: '/home/aih/jan.boada/project/codes/classification'
+dataroot: '/home/aih/jan.boada/project/codes/classification' #csv path
 
 synth_train_data_dir: '/ictstr01/home/aih/jan.boada/project/codes/results/images/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train' #GLOBAL_PATH_TO_SYNTH_DATA_DIR
 

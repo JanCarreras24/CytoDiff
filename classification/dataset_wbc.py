@@ -61,20 +61,20 @@ class DatasetMarr(Dataset): #bo
         try:
             metadata = pd.read_csv(metadata_path)
         except FileNotFoundError:
-            raise FileNotFoundError(f"No se encontró el archivo de metadata en la ruta: {metadata_path}")
+            raise FileNotFoundError(f"No hi ha cap csv file a: {metadata_path}")
 
         set_fold = "set" + str(fold)
         if isinstance(dataset_selection, list):
             dataset_index = metadata.dataset.isin(dataset_selection)
         else:
             dataset_index = metadata["dataset"] == dataset_selection
-        print(f"Filas después de filtrar por dataset ({dataset_selection}): {dataset_index.sum()}")
+        print(f"Filas que hi ha en total ({dataset_selection}): {dataset_index.sum()}")
 
         if state == 'train':
             dataset_index = dataset_index & metadata[set_fold].isin(["train"])
         if state == 'test':
             dataset_index = dataset_index & metadata[set_fold].isin(["test"])
-        print(f"Filas después de filtrar por fold ({set_fold}, {state}): {dataset_index.sum()}")
+        print(f"Filas després de filtrar per fold ({set_fold}, {state}): {dataset_index.sum()}")
 
         dataset_index = dataset_index[dataset_index].index
         metadata = metadata.loc[dataset_index, :]

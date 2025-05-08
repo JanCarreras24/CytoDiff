@@ -17,7 +17,7 @@ conda activate my_env
 
 # Variables de configuración
 GPU=0
-FOLD=4
+FOLD=4  # 0, 1, 2, 3, 4, 
 DATAROOT=/home/aih/jan.boada/project/codes/classification
 DATASET_SELECTION=matek
 OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/fold$FOLD
