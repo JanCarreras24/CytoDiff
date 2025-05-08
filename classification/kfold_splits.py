@@ -81,10 +81,10 @@ def generate_kfold_splits(
     print(f"K-Fold counts saved to '{counts_filename}'")
 
 # Example usage:
-data_path = '/ictstr01/home/aih/rao.umer/codes/chipai_project/extracted_feats/datasets/'
+data_path = '/home/aih/jan.boada/project/codes/classification/'
 generate_kfold_splits(data_path=data_path, 
                       num_splits=5, 
                       random_state=42,
-                      filename='uni.csv',
-                      output_filename='uni_kfold_splits.csv',
-                      counts_filename='uni_kfold_counts.csv')
+                      filename='matek_metadata_base.csv',
+                      output_filename='matek_metadata.csv',
+                      counts_filename='matek_metadata_kfold_counts.csv')

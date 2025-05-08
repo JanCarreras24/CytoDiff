@@ -1,47 +1,29 @@
 import os
 import pandas as pd
 
-# Define the root directory
-root_directory = "/ictstr01/home/aih/rao.umer/codes/chipai_project/extracted_feats/dinobloom-g/"
+# Image directory
+root_directory = "/ictstr01/home/aih/jan.boada/project/codes/datasets/data/matek/real_train_fewshot/seed0/"
+# '/home/aih/jan.boada/project/codes/results/synthetic/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train'
 
-# Initialize an empty list to store data
 data_list = []
 
-# Iterate over the directories and files in the root directory
-for dirpath, dirnames, files in sorted(os.walk(root_directory)):
-    for file in files:
-        # Extract full file path
-        filepath = os.path.join(dirpath, file)
-        
-        # Extract slide_id and label from the file name
-        # Assuming the format: "slide_id_label.h5"
-        if file.endswith(".h5"):
-            try:
-                # Split the filename based on the last underscore
-                slide_id, label_with_ext = file.rsplit("_", 1)
-                label = label_with_ext.rsplit(".", 1)[0]  # Remove ".h5" from the label
-            except ValueError:
-                print(f"Unexpected file naming format: {file}")
-                continue
+# Iterate through each label directory
+for label in sorted(os.listdir(root_directory)):
+    label_path = os.path.join(root_directory, label)
+    if os.path.isdir(label_path):
+        for file in sorted(os.listdir(label_path)):
+            if file.endswith(('.tiff', '.jpg', '.png', '.jpeg')):
+                image_path = os.path.join(label_path, file)
+                data_list.append({
+                    'image': image_path,
+                    'label': label,
+                    'dataset': 'matek'
+                })
 
-            print('slide_id:', slide_id)
-            print('label:', label)
-            print('tensor_path:', filepath)
-            
-            # Append to data list
-            data_list.append({
-                'patient_id': slide_id,
-                'label': label,
-                'tensor_paths': filepath
-            })
-        else:
-            print(f"Skipping non-HDF5 file: {file}")
-
-# Convert list of dictionaries to DataFrame
+# Convert to DataFrame
 df = pd.DataFrame(data_list)
 
-# Save the DataFrame to a CSV file
-csv_path = "/ictstr01/home/aih/rao.umer/codes/chipai_project/extracted_feats/datasets/dinobloom-g.csv"
+# Save csv file (witout folds, just the base)
+csv_path = '/home/aih/jan.boada/project/codes/classification/matek_metadata_base.csv'
 df.to_csv(csv_path, index=False)
-
-print(f"Data has been written to {csv_path}")
+print(f"CSV base guardado en: {csv_path}")
