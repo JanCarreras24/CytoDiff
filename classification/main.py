@@ -26,11 +26,12 @@ from data import get_data_loader, get_synth_train_data_loader
 from models.clip import CLIP
 from models.resnet50 import ResNet50
 from util_data import SUBSET_NAMES, PROMPTS_BY_CLASS
+from sklearn.metrics import f1_score, roc_auc_score
 
 
 
 def load_data_loader(args):
-    train_loader, test_loader = get_data_loader(
+    train_loader, val_loader, test_loader = get_data_loader(
         dataroot=args.dataroot,  # Path 
         dataset_selection=args.dataset_selection,  # Dataset
         bs=args.batch_size,
@@ -41,7 +42,7 @@ def load_data_loader(args):
         is_hsv=args.is_hsv,  # Control de HSV
         is_hed=args.is_hed,  # Control de HED
     )
-    return train_loader, test_loader
+    return train_loader, val_loader, test_loader
 
 
 
@@ -71,7 +72,7 @@ def main(args):
     # ==================================================
     # Data loader
     # ==================================================
-    train_loader, val_loader = load_data_loader(args)
+    train_loader, val_loader, test_loader = load_data_loader(args)
     if args.is_synth_train:
         train_loader = load_synth_train_data_loader(args)
 
@@ -155,36 +156,39 @@ def main(args):
     best_top1 = 0.
 
     for epoch in range(0, args.epochs):
+        # Entrenamiento
         train_stats, best_stats, best_top1 = train_one_epoch(
             model, criterion, train_loader, optimizer, scheduler, epoch, fp16_scaler, cutmix_or_mixup, args,
-            val_loader, best_stats, best_top1, 
+            best_stats, best_top1
         )
 
-#         if args.dataset in ("imagenet", "sun397"):
-#             # evaluate ten times in each epoch
-#             # here we only save train stats
-#             if args.log == 'wandb':
-#                 train_stats.update({"epoch": epoch})
-#                 wandb.log(train_stats)
-#         else:
-        # ============ evaluate model ... ============
-        test_stats = eval(
-            model, criterion, val_loader, epoch, fp16_scaler, args)
+        # Evaluación en el conjunto de validación
+        val_stats = eval(
+            model, criterion, val_loader, epoch, fp16_scaler, args, prefix="val")
 
-        # ============ saving logs and model checkpoint ... ============
-        if test_stats["test/top1"] > best_top1:
-            best_top1 = test_stats["test/top1"]
-            best_stats = test_stats
+        # Guardar el mejor modelo basado en la métrica de validación
+        if val_stats["val/top1"] > best_top1:
+            best_top1 = val_stats["val/top1"]
+            best_stats = val_stats
             save_model(args, model, optimizer, epoch, fp16_scaler, "best_checkpoint.pth")
 
         if epoch + 1 == args.epochs:
-            test_stats['test/best_top1'] = best_stats["test/top1"]
-            test_stats['test/best_loss'] = best_stats["test/loss"]
+            val_stats['val/best_top1'] = best_stats["val/top1"]
+            val_stats['val/best_loss'] = best_stats["val/loss"]
 
         if args.log == 'wandb':
             train_stats.update({"epoch": epoch})
             wandb.log(train_stats)
-            wandb.log(test_stats)
+            wandb.log(val_stats)
+
+    # ==================================================
+    # Final evaluation on test set
+    # ==================================================
+    print("=> Evaluating on test set...")
+    test_stats = eval(
+        model, criterion, test_loader, args.epochs, fp16_scaler, args, prefix="test")
+
+    print(f"Test stats: {test_stats}")
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
@@ -193,7 +197,7 @@ def main(args):
 
 def train_one_epoch(
     model, criterion, data_loader, optimizer, scheduler, epoch, fp16_scaler, cutmix_or_mixup, args,
-    val_loader, best_stats, best_top1,
+    best_stats, best_top1,
 ):
     metric_logger = MetricLogger(delimiter="  ")
     header = "Epoch: [{}/{}]".format(epoch, args.epochs)
@@ -286,24 +290,6 @@ def train_one_epoch(
         if scheduler is not None:
             scheduler.step()
 
-#         # eval in the middle if there's too much iterations
-#         if args.dataset in ("imagenet", "sun397") and it % (len(data_loader) // 10) == 0:
-#             test_stats = eval(
-#                 model, criterion, val_loader, epoch, fp16_scaler, args)
-#             if test_stats["test/top1"] > best_top1:
-#                 best_top1 = test_stats["test/top1"]
-#                 best_stats = test_stats
-#                 save_model(args, model, optimizer, epoch, fp16_scaler, "best_checkpoint.pth")
-#             if epoch + 1 == args.epochs:
-#                 test_stats['test/best_top1'] = best_stats["test/top1"]
-#                 test_stats['test/best_loss'] = best_stats["test/loss"]
-#             if args.log == 'wandb':
-#                 wandb.log(test_stats)
-#             model.train()
-
-#         if it % len(data_loader) == 5:
-#             break
-
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged train stats:", metric_logger)
@@ -312,7 +298,7 @@ def train_one_epoch(
 
 
 @torch.no_grad()
-def eval(model, criterion, data_loader, epoch, fp16_scaler, args):
+def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test"):
     metric_logger = MetricLogger(delimiter="  ")
     header = "Epoch: [{}/{}]".format(epoch, args.epochs)
 
@@ -326,7 +312,6 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args):
     for it, (image, label) in enumerate(
         metric_logger.log_every(data_loader, 100, header)
     ):
-
         image = image.cuda(non_blocking=True)
         label = label.cuda(non_blocking=True)
 
@@ -347,9 +332,10 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args):
             outputs.append(output)
 
     metric_logger.synchronize_between_processes()
-    print("Averaged test stats:", metric_logger)
+    print(f"Averaged {prefix} stats:", metric_logger)
 
-    stat_dict = {"test/{}".format(k): meter.global_avg for k, meter in metric_logger.meters.items()}
+    # Construir el diccionario de estadísticas con el prefijo adecuado
+    stat_dict = {f"{prefix}/{k}": meter.global_avg for k, meter in metric_logger.meters.items()}
 
     if is_last:
         targets = torch.cat(targets)
@@ -361,8 +347,8 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args):
             for cls_idx in range(args.n_classes)
         ]
         for cls_idx, acc in enumerate(acc_per_class):
-            print("{} [{}]: {}".format(SUBSET_NAMES[args.dataset_selection][cls_idx], cls_idx, str(acc)))
-            stat_dict[SUBSET_NAMES[args.dataset_selection][cls_idx] + '_cls-acc'] = acc
+            print(f"{SUBSET_NAMES[args.dataset_selection][cls_idx]} [{cls_idx}]: {acc}")
+            stat_dict[f"{prefix}/{SUBSET_NAMES[args.dataset_selection][cls_idx]}_cls-acc"] = acc
 
     return stat_dict
 

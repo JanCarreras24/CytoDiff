@@ -17,7 +17,7 @@ conda activate my_env
 
 # Variables de configuración
 GPU=0
-FOLD=4  # 0, 1, 2, 3, 4, 
+FOLD=1  # 0, 1, 2, 3, 4, 
 DATAROOT=/home/aih/jan.boada/project/codes/classification
 DATASET_SELECTION=matek
 OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/fold$FOLD
@@ -30,13 +30,13 @@ IS_HED=True
 IS_RAND_AUG=True
 IS_MIX_AUG=True
 MODEL_TYPE=resnet50 # clip
-EPOCHS=10
-WARMUP_EPOCHS=3
+EPOCHS=50 #10
+WARMUP_EPOCHS=30 #3
 LR=1e-4
-WD=1e-4
+WD=1e-8 #1e-4
 MIN_LR=1e-8
 BATCH_SIZE=64
-BATCH_SIZE_EVAL=8
+BATCH_SIZE_EVAL=1 #8
 LOG=tensorboard #wandb
 
 # Mensajes de depuración

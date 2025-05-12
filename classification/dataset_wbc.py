@@ -43,16 +43,16 @@ dataset_image_size = {
     "BMC_22":250,   #288,
     }
     
-class DatasetMarr(Dataset): #bo
+class DatasetMarr(Dataset):  # bo
     def __init__(self, 
-                dataroot,
-                dataset_selection,
-                labels_map,
-                fold,
-                transform=None,
-                state = 'train',
-                is_hsv = False,
-                is_hed = False):
+                 dataroot,
+                 dataset_selection,
+                 labels_map,
+                 fold,
+                 transform=None,
+                 state='train',
+                 is_hsv=False,
+                 is_hed=False):
         super(DatasetMarr, self).__init__()
         
         self.dataroot = os.path.join(dataroot, '')  
@@ -63,29 +63,33 @@ class DatasetMarr(Dataset): #bo
         except FileNotFoundError:
             raise FileNotFoundError(f"No hi ha cap csv file a: {metadata_path}")
 
-        set_fold = "set" + str(fold)
+        set_fold = "kfold" + str(fold)  # Adaptation for the csv file
         if isinstance(dataset_selection, list):
             dataset_index = metadata.dataset.isin(dataset_selection)
         else:
             dataset_index = metadata["dataset"] == dataset_selection
         print(f"Filas que hi ha en total ({dataset_selection}): {dataset_index.sum()}")
 
+        # Filter by fold
         if state == 'train':
             dataset_index = dataset_index & metadata[set_fold].isin(["train"])
-        if state == 'test':
+        elif state == 'validation':
+            dataset_index = dataset_index & metadata[set_fold].isin(["val"])
+        elif state == 'test':
             dataset_index = dataset_index & metadata[set_fold].isin(["test"])
+        else:
+            raise ValueError(f"Estado desconegut: {state}")
         print(f"Filas després de filtrar per fold ({set_fold}, {state}): {dataset_index.sum()}")
 
         dataset_index = dataset_index[dataset_index].index
         metadata = metadata.loc[dataset_index, :]
-        self.metadata = metadata.copy().reset_index(drop = True)
+        self.metadata = metadata.copy().reset_index(drop=True)
         self.labels_map = labels_map
         self.transform = transform
         self.is_hsv = is_hsv and random.random() < 0.33
         self.is_hed = is_hed and random.random() < 0.33
         
         self.hed_aug = HedLighterColorAugmenter()
-        
         
         # numpy --> tensor
         self.to_tensor = tfm.ToTensor()
@@ -97,15 +101,10 @@ class DatasetMarr(Dataset): #bo
     
     def read_img(self, path):
         img = Image.open(path)
-        #print('image mode:', img.mode)
-        
         if img.mode == 'CMYK':
             img = img.convert('RGB')    
         if img.mode == 'RGBA':
             img = img.convert('RGB')
-        
-        #img = np.array(img)
-        #print('RGB img:', img.shape, img.min(), img.max())
         return img
     
     def colorize(self, image):
