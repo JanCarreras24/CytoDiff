@@ -53,6 +53,7 @@ class DatasetMarr(Dataset):  # bo
                  state='train',
                  is_hsv=False,
                  is_hed=False):
+        
         super(DatasetMarr, self).__init__()
         
         self.dataroot = os.path.join(dataroot, '')  
@@ -68,7 +69,7 @@ class DatasetMarr(Dataset):  # bo
             dataset_index = metadata.dataset.isin(dataset_selection)
         else:
             dataset_index = metadata["dataset"] == dataset_selection
-        print(f"Filas que hi ha en total ({dataset_selection}): {dataset_index.sum()}")
+        print(f"Total rows ({dataset_selection}): {dataset_index.sum()}")
 
         # Filter by fold
         if state == 'train':
@@ -79,7 +80,7 @@ class DatasetMarr(Dataset):  # bo
             dataset_index = dataset_index & metadata[set_fold].isin(["test"])
         else:
             raise ValueError(f"Estado desconegut: {state}")
-        print(f"Filas després de filtrar per fold ({set_fold}, {state}): {dataset_index.sum()}")
+        print(f"Total rows in ({set_fold}, {state}): {dataset_index.sum()}")
 
         dataset_index = dataset_index[dataset_index].index
         metadata = metadata.loc[dataset_index, :]

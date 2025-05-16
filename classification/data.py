@@ -28,6 +28,7 @@ from data_loader.augmenter import HedLighterColorAugmenter, HedLightColorAugment
 import os
 
 from dataset_wbc import DatasetMarr, labels_map, T
+from dataset_wbc_mix import DatasetMarrMix
 
 
 from utils import make_dirs
@@ -233,37 +234,39 @@ def get_data_loader(
 
 
 def get_synth_train_data_loader(
-    synth_train_data_dir="data_synth",
-    bs=32, 
+    dataroot,  # Path al CSV que contiene imágenes reales y sintéticas
+    dataset_selection="matek",  # Dataset a seleccionar
+    bs=32,
+    eval_bs=32,
     is_rand_aug=True,
-    target_label=None,
-    n_img_per_cls=None,
-    dataset='matek',
-    n_shot=0,
-    real_train_fewshot_data_dir='',
-    is_pooled_fewshot=False,
     model_type=None,
+    fold=0,  # Fold para k-fold cross-validation
+    is_hsv=True,  # Control de HSV
+    is_hed=True,  # Control de HED
 ):
-
+    # Obtener las transformaciones
     train_transform, test_transform = get_transforms(model_type)
 
-    train_dataset = DatasetSynthImage(
-        synth_train_data_dir=synth_train_data_dir, 
-        transform=train_transform if is_rand_aug else test_transform,
-        target_label=target_label,
-        n_img_per_cls=n_img_per_cls,
-        dataset=dataset,
-        n_shot=n_shot,
-        real_train_fewshot_data_dir=real_train_fewshot_data_dir,
-        is_pooled_fewshot=is_pooled_fewshot,
-    ) 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=bs, 
-        sampler=None,
-        shuffle=is_rand_aug,
-        num_workers=8, pin_memory=True, #16
+    # Crear el dataset combinado usando DatasetMarrMix
+    combined_dataset = DatasetMarrMix(
+        dataroot=dataroot,  # Path al CSV
+        dataset_selection=dataset_selection,  # Dataset a seleccionar
+        labels_map=labels_map,  # Mapeo de etiquetas
+        fold=fold,  # Fold para k-fold cross-validation
+        transform=train_transform if is_rand_aug else test_transform,  # Transformaciones
+        state="train",  # Estado del dataset (entrenamiento)
+        is_hsv=is_hsv,  # Transformaciones HSV
+        is_hed=is_hed,  # Transformaciones HED
     )
+
+    # Crear el DataLoader para el dataset combinado
+    train_loader = torch.utils.data.DataLoader(
+        combined_dataset,
+        batch_size=bs,
+        shuffle=is_rand_aug,  # Barajar los datos si se aplican transformaciones aleatorias
+        num_workers=8,  # Ajustar según los recursos disponibles
+        pin_memory=True,  # Optimización para transferencias de memoria
+    )
+
     return train_loader
-
-
 

@@ -149,6 +149,11 @@ def get_args():
     # Añadir el argumento is_synth_train
     parser.add_argument('--is_synth_train', type=str2bool, default=False,
                         help='Activar entrenamiento sintético (True o False)')
+    
+    # Añadir el argumento is_pooled_fewshot
+    parser.add_argument('--is_pooled_fewshot', type=str2bool, default=False,
+                        help='Acticate different transformation fot synthetic & real (True o False)')    
+    
 
     # Añadir el argumento n_classes
     parser.add_argument('--n_classes', type=int, default=15,

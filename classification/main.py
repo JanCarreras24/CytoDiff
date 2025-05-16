@@ -13,6 +13,8 @@ import wandb
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
+import torch.nn.functional as F
+
 from torchvision.transforms import v2
 
 from utils import (
@@ -26,7 +28,7 @@ from data import get_data_loader, get_synth_train_data_loader
 from models.clip import CLIP
 from models.resnet50 import ResNet50
 from util_data import SUBSET_NAMES, PROMPTS_BY_CLASS
-from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.metrics import f1_score, roc_auc_score, confusion_matrix
 
 
 
@@ -165,7 +167,11 @@ def main(args):
         # Evaluación en el conjunto de validación
         val_stats = eval(
             model, criterion, val_loader, epoch, fp16_scaler, args, prefix="val")
+        print(f"Validation stats for epoch {epoch}: {val_stats}")
+        print(f"Val images: {len(val_loader.dataset)}")
 
+                
+        '''
         # Guardar el mejor modelo basado en la métrica de validación
         if val_stats["val/top1"] > best_top1:
             best_top1 = val_stats["val/top1"]
@@ -179,20 +185,24 @@ def main(args):
         if args.log == 'wandb':
             train_stats.update({"epoch": epoch})
             wandb.log(train_stats)
-            wandb.log(val_stats)
+            wandb.log(val_stats)        
+        '''
+
 
     # ==================================================
     # Final evaluation on test set
     # ==================================================
     print("=> Evaluating on test set...")
+    print(f"Test images: {len(test_loader.dataset)}")
+
     test_stats = eval(
         model, criterion, test_loader, args.epochs, fp16_scaler, args, prefix="test")
 
     print(f"Test stats: {test_stats}")
 
-    total_time = time.time() - start_time
-    total_time_str = str(datetime.timedelta(seconds=int(total_time)))
-    print("Training time {}".format(total_time_str))
+    #total_time = time.time() - start_time
+    #total_time_str = str(datetime.timedelta(seconds=int(total_time)))
+    #print("Training time {}".format(total_time_str))
 
 
 def train_one_epoch(
@@ -205,7 +215,8 @@ def train_one_epoch(
     model.train()
 
     for it, batch in enumerate(
-        metric_logger.log_every(data_loader, 100, header)
+        #metric_logger.log_every(data_loader, 100, header)
+        data_loader
     ):
         if args.is_synth_train and args.is_pooled_fewshot:
             image, label, is_real = batch
@@ -292,25 +303,30 @@ def train_one_epoch(
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    print("Averaged train stats:", metric_logger)
+    # see training reults
+    # print("Averaged train stats:", metric_logger) 
 
     return {"train/{}".format(k): meter.global_avg for k, meter in metric_logger.meters.items()}, best_stats, best_top1
 
 
 @torch.no_grad()
+
 def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test"):
+
     metric_logger = MetricLogger(delimiter="  ")
     header = "Epoch: [{}/{}]".format(epoch, args.epochs)
 
     is_last = epoch + 1 == args.epochs
-    if is_last:
-        targets = []
-        outputs = []
+
+    targets = []
+    outputs = []
 
     model.eval()
 
+    #probs = torch.FloatTensor(len(data_loader), args.n_classes).cuda()
     for it, (image, label) in enumerate(
-        metric_logger.log_every(data_loader, 100, header)
+        #metric_logger.log_every(data_loader, 100, header)
+        data_loader
     ):
         image = image.cuda(non_blocking=True)
         label = label.cuda(non_blocking=True)
@@ -319,6 +335,7 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
         with torch.cuda.amp.autocast(fp16_scaler is not None):
             output = model(image, phase="eval")
             loss = criterion(output, label)
+            #probs[it] = output.softmax(dim=1).detach() #help rao
 
         acc1, acc5 = get_accuracy(output, label, topk=(1, 5))
 
@@ -327,23 +344,64 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
         metric_logger.update(top1=acc1.item())
         metric_logger.update(top5=acc5.item())
 
-        if is_last:
-            targets.append(label)
-            outputs.append(output)
+        targets.append(label.cpu())
+        outputs.append(output.cpu())  # logits (sin softmax aún)
 
     metric_logger.synchronize_between_processes()
-    print(f"Averaged {prefix} stats:", metric_logger)
+    #print(f"Averaged {prefix} stats:", metric_logger)
 
-    # Construir el diccionario de estadísticas con el prefijo adecuado
     stat_dict = {f"{prefix}/{k}": meter.global_avg for k, meter in metric_logger.meters.items()}
 
-    if is_last:
-        targets = torch.cat(targets)
-        outputs = torch.cat(outputs)
+    # Concatenar todos los outputs y targets
+    targets = torch.cat(targets)
+    outputs = torch.cat(outputs)
 
-        # calculate per class accuracy
+    # Obtener probabilidades a partir de logits
+    probs = F.softmax(outputs, dim=1)
+    preds = probs.argmax(dim=1)
+
+    #auc = roc_auc_score(targets, probs, multi_class="ovr", average="macro")
+
+    # F1-score
+    f1_macro = f1_score(targets.numpy(), preds.numpy(), average="macro") #macro
+    f1_micro = f1_score(targets.numpy(), preds.numpy(), average="micro") #macro
+    f1_weighted = f1_score(targets.numpy(), preds.numpy(), average="weighted") #macro
+
+
+    stat_dict[f"{prefix}/f1_macro"] = f1_macro
+    stat_dict[f"{prefix}/f1_micro"] = f1_micro
+    stat_dict[f"{prefix}/f1_weighted"] = f1_weighted
+    #stat_dict[f"{prefix}/auc"] = auc
+
+
+    '''
+        # AUC 
+    auc = float("nan")
+    if is_last:
+        try:
+            if args.n_classes > 2:
+                unique_targets = torch.unique(targets)
+                if len(unique_targets) == args.n_classes:
+                    auc = roc_auc_score(targets.numpy(), probs.numpy(), multi_class="ovr", average="macro")
+                else:
+                    print(f"[WARN] Not all class presents in target: {unique_targets.tolist()}")
+
+        except ValueError as e:
+            print(f"[ERROR] roc_auc_score failed: {e}")
+            
+    stat_dict[f"{prefix}/auc"] = auc
+    
+    '''
+
+    if is_last:
+        # Confusion matrix
+        conf_matrix = confusion_matrix(targets, preds)
+        print(f"{prefix.capitalize()} Confusion Matrix:\n{conf_matrix}")
+        stat_dict[f"{prefix}/confusion_matrix"] = conf_matrix.tolist()
+
+        # Calculate per class accuracy
         acc_per_class = [
-            get_accuracy(outputs[targets == cls_idx], targets[targets == cls_idx], topk=(1,))[0].item() 
+            get_accuracy(probs[targets == cls_idx], targets[targets == cls_idx], topk=(1,))[0].item()
             for cls_idx in range(args.n_classes)
         ]
         for cls_idx, acc in enumerate(acc_per_class):
