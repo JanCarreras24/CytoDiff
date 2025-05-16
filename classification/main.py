@@ -375,7 +375,7 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
 
 
     '''
-        # AUC 
+    # AUC 
     auc = float("nan")
     if is_last:
         try:
@@ -393,11 +393,26 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
     
     '''
 
-    if is_last:
+    if prefix == "test":
+        # AUC 
+        auc = float("nan")
+        try:
+            if args.n_classes > 2:
+                unique_targets = torch.unique(targets)
+                if len(unique_targets) == args.n_classes:
+                    auc = roc_auc_score(targets.numpy(), probs.numpy(), multi_class="ovr", average="macro")
+                else:
+                    print(f"[WARN] Not all class presents in target: {unique_targets.tolist()}")
+
+        except ValueError as e:
+            print(f"[ERROR] roc_auc_score failed: {e}")
+                
+        stat_dict[f"{prefix}/auc"] = auc
+
         # Confusion matrix
         conf_matrix = confusion_matrix(targets, preds)
         print(f"{prefix.capitalize()} Confusion Matrix:\n{conf_matrix}")
-        stat_dict[f"{prefix}/confusion_matrix"] = conf_matrix.tolist()
+        #stat_dict[f"{prefix}/confusion_matrix"] = conf_matrix.tolist()
 
         # Calculate per class accuracy
         acc_per_class = [
@@ -406,7 +421,7 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
         ]
         for cls_idx, acc in enumerate(acc_per_class):
             print(f"{SUBSET_NAMES[args.dataset_selection][cls_idx]} [{cls_idx}]: {acc}")
-            stat_dict[f"{prefix}/{SUBSET_NAMES[args.dataset_selection][cls_idx]}_cls-acc"] = acc
+            #stat_dict[f"{prefix}/{SUBSET_NAMES[args.dataset_selection][cls_idx]}_cls-acc"] = acc
 
     return stat_dict
 
