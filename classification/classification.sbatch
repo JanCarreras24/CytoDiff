@@ -17,12 +17,13 @@ conda activate my_env
 
 # Variables de configuración
 GPU=0
-FOLD=1  # 0, 1, 2, 3, 4, 
+FOLD=4  # 0, 1, 2, 3, 4, 
 DATAROOT=/home/aih/jan.boada/project/codes/classification
 DATASET_SELECTION=matek
-OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/fold$FOLD
+OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/synthetic/fold$FOLD
 CLIP_DIR=/home/aih/jan.boada/project/codes/classification/models/clip.py
 IS_SYNTH_TRAIN=False #True
+IS_POOLED_FEWSHOT=False #True
 N_CLASS=15
 
 IS_HSV=True
@@ -36,12 +37,14 @@ LR=1e-4
 WD=1e-8 #1e-4
 MIN_LR=1e-8
 BATCH_SIZE=64
-BATCH_SIZE_EVAL=1 #8
+BATCH_SIZE_EVAL=1  #16 #8  #1
 LOG=tensorboard #wandb
 
 # Mensajes de depuración
 echo "=== INICIO DEL JOB ==="
 echo "DATAROOT: $DATAROOT"
+echo "BATCH_SIZE: $BATCH_SIZE"
+echo "BATCH_SIZE_EVAL: $BATCH_SIZE_EVAL"
 echo "DATASET_SELECTION: $DATASET_SELECTION"
 echo "OUTPUT_DIR: $OUTPUT_DIR"
 echo "FOLD: $FOLD"
@@ -60,6 +63,7 @@ CUDA_VISIBLE_DEVICES=$GPU python main.py \
 --dataroot=$DATAROOT \
 --dataset_selection=$DATASET_SELECTION \
 --is_synth_train=$IS_SYNTH_TRAIN \
+--is_pooled_fewshot=$IS_POOLED_FEWSHOT \
 --fold=$FOLD \
 --n_classes=$N_CLASS \
 --is_hsv=$IS_HSV \

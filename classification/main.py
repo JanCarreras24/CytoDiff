@@ -9,6 +9,7 @@ import traceback
 from pathlib import Path
 from os.path import join as ospj
 import wandb
+import numpy as np
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -29,6 +30,8 @@ from models.clip import CLIP
 from models.resnet50 import ResNet50
 from util_data import SUBSET_NAMES, PROMPTS_BY_CLASS
 from sklearn.metrics import f1_score, roc_auc_score, confusion_matrix
+from sklearn.preprocessing import label_binarize
+
 
 
 
@@ -168,7 +171,7 @@ def main(args):
         val_stats = eval(
             model, criterion, val_loader, epoch, fp16_scaler, args, prefix="val")
         print(f"Validation stats for epoch {epoch}: {val_stats}")
-        print(f"Val images: {len(val_loader.dataset)}")
+        #print(f"Val images: {len(val_loader.dataset)}")
 
                 
         '''
@@ -352,71 +355,54 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
 
     stat_dict = {f"{prefix}/{k}": meter.global_avg for k, meter in metric_logger.meters.items()}
 
-    # Concatenar todos los outputs y targets
-    targets = torch.cat(targets)
+    targets = torch.cat(targets).detach().cpu().numpy()
     outputs = torch.cat(outputs)
 
-    # Obtener probabilidades a partir de logits
-    probs = F.softmax(outputs, dim=1)
-    preds = probs.argmax(dim=1)
+    # Obtain probabilities for auc
+    probs = F.softmax(outputs, dim=1).detach().cpu().numpy()
 
-    #auc = roc_auc_score(targets, probs, multi_class="ovr", average="macro")
+    # Obtain predictions
+    preds = probs.argmax(axis=1)
 
-    # F1-score
-    f1_macro = f1_score(targets.numpy(), preds.numpy(), average="macro") #macro
-    f1_micro = f1_score(targets.numpy(), preds.numpy(), average="micro") #macro
-    f1_weighted = f1_score(targets.numpy(), preds.numpy(), average="weighted") #macro
-
+    # F1-scores
+    f1_macro = f1_score(targets, preds, average="macro")
+    f1_micro = f1_score(targets, preds, average="micro")
+    f1_weighted = f1_score(targets, preds, average="weighted")
 
     stat_dict[f"{prefix}/f1_macro"] = f1_macro
     stat_dict[f"{prefix}/f1_micro"] = f1_micro
     stat_dict[f"{prefix}/f1_weighted"] = f1_weighted
-    #stat_dict[f"{prefix}/auc"] = auc
 
+    # AUC
+    unique_targets = np.unique(targets)
 
-    '''
-    # AUC 
-    auc = float("nan")
-    if is_last:
+    if len(unique_targets) == args.n_classes:
         try:
-            if args.n_classes > 2:
-                unique_targets = torch.unique(targets)
-                if len(unique_targets) == args.n_classes:
-                    auc = roc_auc_score(targets.numpy(), probs.numpy(), multi_class="ovr", average="macro")
-                else:
-                    print(f"[WARN] Not all class presents in target: {unique_targets.tolist()}")
+            y_true_bin = label_binarize(targets, classes=np.arange(args.n_classes))
+            auc_macro = roc_auc_score(y_true_bin, probs, average="macro", multi_class="ovr")
+            #auc_micro = roc_auc_score(y_true_bin, probs, average="micro", multi_class="ovr")
+            auc_weighted = roc_auc_score(y_true_bin, probs, average="weighted", multi_class="ovr")
 
-        except ValueError as e:
-            print(f"[ERROR] roc_auc_score failed: {e}")
-            
-    stat_dict[f"{prefix}/auc"] = auc
+        except Exception as e:
+            print("ERROR during roc_auc_score:", e)
+    else:
+        print(f"[WARN] Not all classes present in target: {unique_targets.tolist()}")
+
+    stat_dict[f"{prefix}/auc_macro"] = auc_macro
+    #stat_dict[f"{prefix}/auc_micro"] = auc_micro
+    stat_dict[f"{prefix}/auc_weighted"] = auc_weighted
     
-    '''
-
+    
     if prefix == "test":
-        # AUC 
-        auc = float("nan")
-        try:
-            if args.n_classes > 2:
-                unique_targets = torch.unique(targets)
-                if len(unique_targets) == args.n_classes:
-                    auc = roc_auc_score(targets.numpy(), probs.numpy(), multi_class="ovr", average="macro")
-                else:
-                    print(f"[WARN] Not all class presents in target: {unique_targets.tolist()}")
-
-        except ValueError as e:
-            print(f"[ERROR] roc_auc_score failed: {e}")
-                
-        stat_dict[f"{prefix}/auc"] = auc
-
         # Confusion matrix
         conf_matrix = confusion_matrix(targets, preds)
         print(f"{prefix.capitalize()} Confusion Matrix:\n{conf_matrix}")
-        #stat_dict[f"{prefix}/confusion_matrix"] = conf_matrix.tolist()
 
         # Calculate per class accuracy
+        targets_acc = torch.tensor(targets)
+        probs_acc = torch.tensor(probs)
         acc_per_class = [
-            get_accuracy(probs[targets == cls_idx], targets[targets == cls_idx], topk=(1,))[0].item()
+            get_accuracy(probs_acc[targets_acc == cls_idx], targets_acc[targets_acc == cls_idx], topk=(1,))[0].item()
             for cls_idx in range(args.n_classes)
         ]
         for cls_idx, acc in enumerate(acc_per_class):

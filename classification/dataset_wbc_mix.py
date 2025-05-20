@@ -43,7 +43,7 @@ dataset_image_size = {
     "BMC_22":250,   #288,
     }
     
-class DatasetMarr(Dataset):  # bo
+class DatasetMarrMix(Dataset):  # bo
     def __init__(self, 
                  dataroot,
                  dataset_selection,
@@ -53,12 +53,11 @@ class DatasetMarr(Dataset):  # bo
                  state='train',
                  is_hsv=False,
                  is_hed=False):
-        
-        super(DatasetMarr, self).__init__()
+        super(DatasetMarrMix, self).__init__()
         
         self.dataroot = os.path.join(dataroot, '')  
 
-        metadata_path = os.path.join(self.dataroot, 'matek_metadata.csv')
+        metadata_path = os.path.join(self.dataroot, 'matek_metadata_mix.csv')
         try:
             metadata = pd.read_csv(metadata_path)
         except FileNotFoundError:
@@ -69,7 +68,7 @@ class DatasetMarr(Dataset):  # bo
             dataset_index = metadata.dataset.isin(dataset_selection)
         else:
             dataset_index = metadata["dataset"] == dataset_selection
-        print(f"Total rows ({dataset_selection}): {dataset_index.sum()}")
+        print(f"Filas que hi ha en total ({dataset_selection}): {dataset_index.sum()}")
 
         # Filter by fold
         if state == 'train':
@@ -80,7 +79,7 @@ class DatasetMarr(Dataset):  # bo
             dataset_index = dataset_index & metadata[set_fold].isin(["test"])
         else:
             raise ValueError(f"Estado desconegut: {state}")
-        print(f"Total rows in ({set_fold}, {state}): {dataset_index.sum()}")
+        print(f"Filas després de filtrar per fold ({set_fold}, {state}): {dataset_index.sum()}")
 
         dataset_index = dataset_index[dataset_index].index
         metadata = metadata.loc[dataset_index, :]
@@ -116,10 +115,6 @@ class DatasetMarr(Dataset):  # bo
         hue = random.choice(np.linspace(-0.1, 0.1))
         saturation = random.choice(np.linspace(-1, 1))
         
-        # hue = random.choice(np.linspace(0, 1))
-        # saturation = random.choice(np.linspace(0, 1))
-        # print(f"Valor de hue generado en colorize: {hue}")
-        # print(f"Valor de saturation generado en colorize: {saturation}")
         hsv = rgb2hsv(image)
         hsv[:, :, 1] = saturation
         hsv[:, :, 0] = hue
@@ -133,12 +128,9 @@ class DatasetMarr(Dataset):  # bo
         ## get image and label
         dataset =  self.metadata.loc[idx,"dataset"]
         crop_size = dataset_image_size[dataset]
-        #print('crop_size:', crop_size)
         
         file_path = self.metadata.loc[idx,"image"]
-        #file_path = os.path.join('../../', self.metadata.loc[idx,"image"])
-        #image= self.read_img(file_path)
-        image= imread(file_path)[:,:,[0,1,2]]
+        image = imread(file_path)[:,:,[0,1,2]]
         h1 = (image.shape[0] - crop_size) /2
         h1 = int(h1)
         h2 = (image.shape[0] + crop_size) /2
@@ -151,31 +143,28 @@ class DatasetMarr(Dataset):  # bo
         image = image[h1:h2,w1:w2, :]
         
         label_name = self.metadata.loc[idx,"label"]
-        # print(f"Etiqueta obtenida: {label_name} (tipo: {type(label_name)})")
         label = self.labels_map[label_name]
         
         if self.is_hsv:
             image = self.colorize(image).clip(0.,1.)
-            #print('img hsv:', image.shape, image.min(), image.max())
         
         if self.is_hed:
             self.hed_aug.randomize()
             image = self.hed_aug.transform(image)
-            #print('img hed:', image.shape, image.min(), image.max())
         
         img = self.to_tensor(copy.deepcopy(image))
-        #print('img tensor:', img.shape, img.min(), img.max())
         image = self.from_tensor(img)
-        #print('img PIL:', image.size)
         
         if self.transform:
             image = self.transform(image)
-            # raw_image = self.transform(raw_image)
         
         label = torch.tensor(label).long()
-        
-        return image, label
-        #return {'img': image, 'label': label, 'label_name': label_name, 'path': file_path}
+
+        # Leer la columna is_real
+        is_real = self.metadata.loc[idx, "is_real"]
+        is_real = torch.tensor(is_real).long()
+
+        return image, label, is_real
 
 def imshow(img):
     npimg = img.numpy()
@@ -214,28 +203,28 @@ if __name__ == '__main__':
     
 
     labels_map = {
-            'Basophil': 0,
-            'Erythroblast': 1,
-            'Eosinophil': 2,
-            'Smudge cell': 3,
-            'Atypical Lymphocyte': 4,
-            'Typical Lymphocyte': 5,
-            'Metamyelocyte': 6,
-            'Monoblast': 7, 
-            'Monocyte': 8,
-            'Myelocyte': 9,
-            'Myeloblast':10,
-            'Band Neutrophil': 11, 
-            'Segmented Neutrophil': 12,
-            'Promyelocyte Bilobed': 13,
-            'Promyelocyte': 14
-        }
+        'Basophil': 0,
+        'Erythroblast': 1,
+        'Eosinophil': 2,
+        'Smudge cell': 3,
+        'Atypical Lymphocyte': 4,
+        'Typical Lymphocyte': 5,
+        'Metamyelocyte': 6,
+        'Monoblast': 7, 
+        'Monocyte': 8,
+        'Myelocyte': 9,
+        'Myeloblast':10,
+        'Band Neutrophil': 11, 
+        'Segmented Neutrophil': 12,
+        'Promyelocyte Bilobed': 13,
+        'Promyelocyte': 14
+    }
     
     #train_sel = ["BMC_22"]    #["Ace_20", "Mat_19", "MLL_20", "BMC_22"]
     train_sel = ["matek"]    #["Ace_20", "Mat_19", "MLL_20", "BMC_22"]
     
     # trainset
-    train_dataset = DatasetMarr(dataroot,
+    train_dataset = DatasetMarrMix(dataroot,
                                 train_sel,
                                 labels_map,
                                 fold,
@@ -254,9 +243,10 @@ if __name__ == '__main__':
     # training loop
     for epoch in range(1):
         print('epoch:', epoch)
-        for i, (img, label) in enumerate(trainset_loader):
+        for i, (img, label, is_real) in enumerate(trainset_loader):
             print('train::imgs:', img.shape, img.min(), img.max())
             print('train::labels:', label)
+            print('train::is_real:', is_real)
             
             # show images
             plt.figure()
@@ -272,7 +262,7 @@ if __name__ == '__main__':
     # print('#trainset_loader:', len(trainset_loader))
     
     # # testset
-    # test_dataset = DatasetMarr(dataroot,
+    # test_dataset = DatasetMarrMix(dataroot,
     #                       test_sel,
     #                       labels_map,
     #                       test_transform,

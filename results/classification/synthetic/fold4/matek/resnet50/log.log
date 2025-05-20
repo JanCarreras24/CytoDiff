@@ -1,0 +1,93 @@
+Argumentos recibidos: Namespace(model_type='resnet50', clip_version='ViT-B/16', is_lora_image=True, is_lora_text=True, clip_download_dir='CLIP_DIR', dataroot='/home/aih/jan.boada/project/codes/classification', dataset_selection='matek', fold=4, is_hsv=True, is_hed=True, is_rand_aug=True, is_synth_train=False, is_pooled_fewshot=False, n_classes=15, is_mix_aug=True, use_fp16=True, batch_size=64, batch_size_eval=1, epochs=50, wd=1e-08, lr=0.0001, warmup_epochs=30, min_lr=1e-08, output_dir='/home/aih/jan.boada/project/codes/results/classification/synthetic/fold4/matek/resnet50', saveckpt_freq=100, seed=22, num_workers=12, dist_url='env://', local_rank=0, log='', wandb_entity='regaz', wandb_project='datadream', wandb_group=None, wandb_key='<your_api_key_here>')
+Total rows (matek): 15000
+Total rows in (kfold4, train): 9000
+Total rows (matek): 15000
+Total rows in (kfold4, validation): 3000
+Total rows (matek): 15000
+Total rows in (kfold4, test): 3000
+=> Training starts ...
+Validation stats for epoch 0: {'val/loss': 2.7742141927083335, 'val/top1': 7.433333333333334, 'val/top5': 36.233333333333334, 'val/f1_macro': 0.02412664186715314, 'val/f1_micro': 0.07433333333333333, 'val/f1_weighted': 0.024126641867153145, 'val/auc_macro': 0.5365508333333333, 'val/auc_weighted': 0.5365508333333334}
+Validation stats for epoch 1: {'val/loss': 2.754450520833333, 'val/top1': 7.933333333333334, 'val/top5': 37.166666666666664, 'val/f1_macro': 0.04665944531347838, 'val/f1_micro': 0.07933333333333334, 'val/f1_weighted': 0.04665944531347838, 'val/auc_macro': 0.5288891071428573, 'val/auc_weighted': 0.5288891071428571}
+Validation stats for epoch 2: {'val/loss': 3.115499267578125, 'val/top1': 7.966666666666667, 'val/top5': 35.2, 'val/f1_macro': 0.04838116382180371, 'val/f1_micro': 0.07966666666666666, 'val/f1_weighted': 0.04838116382180372, 'val/auc_macro': 0.5253147619047619, 'val/auc_weighted': 0.5253147619047619}
+Validation stats for epoch 3: {'val/loss': 3.3399156901041667, 'val/top1': 8.766666666666667, 'val/top5': 38.266666666666666, 'val/f1_macro': 0.05737924118636917, 'val/f1_micro': 0.08766666666666667, 'val/f1_weighted': 0.05737924118636916, 'val/auc_macro': 0.5650460714285714, 'val/auc_weighted': 0.5650460714285714}
+Validation stats for epoch 4: {'val/loss': 3.7726580403645835, 'val/top1': 7.666666666666667, 'val/top5': 36.4, 'val/f1_macro': 0.04447104165044472, 'val/f1_micro': 0.07666666666666666, 'val/f1_weighted': 0.04447104165044472, 'val/auc_macro': 0.5574820833333333, 'val/auc_weighted': 0.5574820833333333}
+Validation stats for epoch 5: {'val/loss': 3.9533246256510415, 'val/top1': 7.8, 'val/top5': 37.96666666666667, 'val/f1_macro': 0.04329190104629547, 'val/f1_micro': 0.078, 'val/f1_weighted': 0.043291901046295475, 'val/auc_macro': 0.5637933333333333, 'val/auc_weighted': 0.5637933333333333}
+Validation stats for epoch 6: {'val/loss': 4.10412826538086, 'val/top1': 9.166666666666666, 'val/top5': 38.666666666666664, 'val/f1_macro': 0.056893355223818005, 'val/f1_micro': 0.09166666666666666, 'val/f1_weighted': 0.05689335522381799, 'val/auc_macro': 0.5815485119047619, 'val/auc_weighted': 0.581548511904762}
+Validation stats for epoch 7: {'val/loss': 4.026141031901042, 'val/top1': 9.2, 'val/top5': 40.266666666666666, 'val/f1_macro': 0.05635592295235769, 'val/f1_micro': 0.092, 'val/f1_weighted': 0.056355922952357695, 'val/auc_macro': 0.590357738095238, 'val/auc_weighted': 0.5903577380952381}
+Validation stats for epoch 8: {'val/loss': 4.032993372599284, 'val/top1': 11.266666666666667, 'val/top5': 39.93333333333333, 'val/f1_macro': 0.06892895773942793, 'val/f1_micro': 0.11266666666666666, 'val/f1_weighted': 0.06892895773942793, 'val/auc_macro': 0.5985362500000001, 'val/auc_weighted': 0.59853625}
+Validation stats for epoch 9: {'val/loss': 4.1731742553710935, 'val/top1': 11.8, 'val/top5': 42.63333333333333, 'val/f1_macro': 0.07183694011893775, 'val/f1_micro': 0.118, 'val/f1_weighted': 0.07183694011893775, 'val/auc_macro': 0.6157501190476192, 'val/auc_weighted': 0.6157501190476191}
+Validation stats for epoch 10: {'val/loss': 3.943751922607422, 'val/top1': 12.766666666666667, 'val/top5': 44.96666666666667, 'val/f1_macro': 0.08306198687226375, 'val/f1_micro': 0.12766666666666668, 'val/f1_weighted': 0.08306198687226374, 'val/auc_macro': 0.6294055357142857, 'val/auc_weighted': 0.6294055357142857}
+Validation stats for epoch 11: {'val/loss': 3.831776697317759, 'val/top1': 15.733333333333333, 'val/top5': 51.666666666666664, 'val/f1_macro': 0.12144474296144608, 'val/f1_micro': 0.15733333333333333, 'val/f1_weighted': 0.1214447429614461, 'val/auc_macro': 0.6765851785714285, 'val/auc_weighted': 0.6765851785714285}
+Validation stats for epoch 12: {'val/loss': 3.7279912989934285, 'val/top1': 16.133333333333333, 'val/top5': 48.833333333333336, 'val/f1_macro': 0.12454322744438158, 'val/f1_micro': 0.16166666666666665, 'val/f1_weighted': 0.12454322744438158, 'val/auc_macro': 0.6546236904761906, 'val/auc_weighted': 0.6546236904761905}
+Validation stats for epoch 13: {'val/loss': 3.1538154525756834, 'val/top1': 19.066666666666666, 'val/top5': 55.3, 'val/f1_macro': 0.15417790873674928, 'val/f1_micro': 0.19066666666666668, 'val/f1_weighted': 0.15417790873674928, 'val/auc_macro': 0.7259007142857143, 'val/auc_weighted': 0.7259007142857141}
+Validation stats for epoch 14: {'val/loss': 3.3907309633890788, 'val/top1': 19.066666666666666, 'val/top5': 60.333333333333336, 'val/f1_macro': 0.17181453740700323, 'val/f1_micro': 0.19066666666666668, 'val/f1_weighted': 0.17181453740700317, 'val/auc_macro': 0.7293864285714287, 'val/auc_weighted': 0.7293864285714285}
+Validation stats for epoch 15: {'val/loss': 2.9491583357254663, 'val/top1': 24.4, 'val/top5': 63.63333333333333, 'val/f1_macro': 0.2283229128138659, 'val/f1_micro': 0.244, 'val/f1_weighted': 0.22832291281386588, 'val/auc_macro': 0.7707038690476191, 'val/auc_weighted': 0.7707038690476191}
+Validation stats for epoch 16: {'val/loss': 2.9440549443562825, 'val/top1': 23.366666666666667, 'val/top5': 69.33333333333333, 'val/f1_macro': 0.21254586715289003, 'val/f1_micro': 0.23366666666666666, 'val/f1_weighted': 0.21254586715289003, 'val/auc_macro': 0.7873083333333333, 'val/auc_weighted': 0.7873083333333333}
+Validation stats for epoch 17: {'val/loss': 2.8793267715771993, 'val/top1': 22.4, 'val/top5': 69.16666666666667, 'val/f1_macro': 0.2028945165854352, 'val/f1_micro': 0.224, 'val/f1_weighted': 0.20289451658543517, 'val/auc_macro': 0.8165510714285715, 'val/auc_weighted': 0.8165510714285713}
+Validation stats for epoch 18: {'val/loss': 2.675878250916799, 'val/top1': 31.5, 'val/top5': 70.53333333333333, 'val/f1_macro': 0.27846088521692186, 'val/f1_micro': 0.315, 'val/f1_weighted': 0.27846088521692186, 'val/auc_macro': 0.8291485714285715, 'val/auc_weighted': 0.8291485714285715}
+Validation stats for epoch 19: {'val/loss': 2.649852605779966, 'val/top1': 30.933333333333334, 'val/top5': 73.0, 'val/f1_macro': 0.27737459904039413, 'val/f1_micro': 0.30933333333333335, 'val/f1_weighted': 0.27737459904039413, 'val/auc_macro': 0.8481662499999999, 'val/auc_weighted': 0.8481662500000001}
+Validation stats for epoch 20: {'val/loss': 2.5666259030898413, 'val/top1': 31.066666666666666, 'val/top5': 74.83333333333333, 'val/f1_macro': 0.2915415015076759, 'val/f1_micro': 0.311, 'val/f1_weighted': 0.29154150150767594, 'val/auc_macro': 0.8397285119047618, 'val/auc_weighted': 0.8397285119047619}
+Validation stats for epoch 21: {'val/loss': 2.0849485613505045, 'val/top1': 42.166666666666664, 'val/top5': 81.63333333333334, 'val/f1_macro': 0.4204666462582199, 'val/f1_micro': 0.4216666666666667, 'val/f1_weighted': 0.4204666462582199, 'val/auc_macro': 0.8868436309523808, 'val/auc_weighted': 0.8868436309523808}
+Validation stats for epoch 22: {'val/loss': 2.0209934712251028, 'val/top1': 41.9, 'val/top5': 85.96666666666667, 'val/f1_macro': 0.40706570249692925, 'val/f1_micro': 0.419, 'val/f1_weighted': 0.4070657024969292, 'val/auc_macro': 0.8872455357142857, 'val/auc_weighted': 0.8872455357142854}
+Validation stats for epoch 23: {'val/loss': 1.958840672850609, 'val/top1': 43.8, 'val/top5': 84.1, 'val/f1_macro': 0.42531615320415445, 'val/f1_micro': 0.438, 'val/f1_weighted': 0.42531615320415433, 'val/auc_macro': 0.8890696428571427, 'val/auc_weighted': 0.8890696428571427}
+Validation stats for epoch 24: {'val/loss': 1.8864324100812275, 'val/top1': 46.733333333333334, 'val/top5': 84.4, 'val/f1_macro': 0.43237552912238564, 'val/f1_micro': 0.4673333333333333, 'val/f1_weighted': 0.4323755291223857, 'val/auc_macro': 0.8984653571428572, 'val/auc_weighted': 0.8984653571428572}
+Validation stats for epoch 25: {'val/loss': 2.9550013006130853, 'val/top1': 33.7, 'val/top5': 77.73333333333333, 'val/f1_macro': 0.34043449571694323, 'val/f1_micro': 0.337, 'val/f1_weighted': 0.34043449571694323, 'val/auc_macro': 0.8284791666666665, 'val/auc_weighted': 0.8284791666666667}
+Validation stats for epoch 26: {'val/loss': 1.6533230023384093, 'val/top1': 51.43333333333333, 'val/top5': 87.3, 'val/f1_macro': 0.49261787830349024, 'val/f1_micro': 0.5143333333333333, 'val/f1_weighted': 0.49261787830349024, 'val/auc_macro': 0.9314300595238093, 'val/auc_weighted': 0.9314300595238096}
+Validation stats for epoch 27: {'val/loss': 1.4727753791809082, 'val/top1': 54.4, 'val/top5': 89.26666666666667, 'val/f1_macro': 0.5315320097608691, 'val/f1_micro': 0.544, 'val/f1_weighted': 0.531532009760869, 'val/auc_macro': 0.9348726785714286, 'val/auc_weighted': 0.9348726785714285}
+Validation stats for epoch 28: {'val/loss': 1.8604862072467805, 'val/top1': 46.1, 'val/top5': 84.26666666666667, 'val/f1_macro': 0.43720188506152335, 'val/f1_micro': 0.461, 'val/f1_weighted': 0.43720188506152324, 'val/auc_macro': 0.9087392857142856, 'val/auc_weighted': 0.9087392857142857}
+Validation stats for epoch 29: {'val/loss': 1.5571848884423574, 'val/top1': 52.766666666666666, 'val/top5': 86.66666666666667, 'val/f1_macro': 0.5057389000430622, 'val/f1_micro': 0.5276666666666666, 'val/f1_weighted': 0.5057389000430622, 'val/auc_macro': 0.9462486904761905, 'val/auc_weighted': 0.9462486904761904}
+Validation stats for epoch 30: {'val/loss': 2.3671926181316376, 'val/top1': 35.333333333333336, 'val/top5': 84.56666666666666, 'val/f1_macro': 0.3651985302708558, 'val/f1_micro': 0.35333333333333333, 'val/f1_weighted': 0.3651985302708558, 'val/auc_macro': 0.8970516071428573, 'val/auc_weighted': 0.8970516071428569}
+Validation stats for epoch 31: {'val/loss': 1.223279387275378, 'val/top1': 61.96666666666667, 'val/top5': 92.73333333333333, 'val/f1_macro': 0.6140627682113, 'val/f1_micro': 0.62, 'val/f1_weighted': 0.6140627682113001, 'val/auc_macro': 0.9569853571428572, 'val/auc_weighted': 0.956985357142857}
+Validation stats for epoch 32: {'val/loss': 1.5360970912774403, 'val/top1': 56.43333333333333, 'val/top5': 88.33333333333333, 'val/f1_macro': 0.5526764593517662, 'val/f1_micro': 0.5646666666666667, 'val/f1_weighted': 0.5526764593517663, 'val/auc_macro': 0.9276400595238096, 'val/auc_weighted': 0.9276400595238096}
+Validation stats for epoch 33: {'val/loss': 1.3261702655156453, 'val/top1': 59.0, 'val/top5': 92.9, 'val/f1_macro': 0.5850701308320522, 'val/f1_micro': 0.59, 'val/f1_weighted': 0.5850701308320523, 'val/auc_macro': 0.9562202380952383, 'val/auc_weighted': 0.9562202380952383}
+Validation stats for epoch 34: {'val/loss': 1.0693231408596038, 'val/top1': 65.4, 'val/top5': 94.66666666666667, 'val/f1_macro': 0.6555492434380309, 'val/f1_micro': 0.654, 'val/f1_weighted': 0.6555492434380309, 'val/auc_macro': 0.968843988095238, 'val/auc_weighted': 0.968843988095238}
+Validation stats for epoch 35: {'val/loss': 1.3291396414836247, 'val/top1': 60.333333333333336, 'val/top5': 90.06666666666666, 'val/f1_macro': 0.6153761072814732, 'val/f1_micro': 0.6033333333333334, 'val/f1_weighted': 0.6153761072814732, 'val/auc_macro': 0.9531612499999998, 'val/auc_weighted': 0.9531612500000001}
+Validation stats for epoch 36: {'val/loss': 1.2324695154825847, 'val/top1': 62.03333333333333, 'val/top5': 93.66666666666667, 'val/f1_macro': 0.6144120877011292, 'val/f1_micro': 0.6203333333333333, 'val/f1_weighted': 0.6144120877011293, 'val/auc_macro': 0.9586299404761903, 'val/auc_weighted': 0.9586299404761904}
+Validation stats for epoch 37: {'val/loss': 1.2462646259069443, 'val/top1': 61.06666666666667, 'val/top5': 93.0, 'val/f1_macro': 0.6174753937662467, 'val/f1_micro': 0.6106666666666667, 'val/f1_weighted': 0.6174753937662468, 'val/auc_macro': 0.9633221428571429, 'val/auc_weighted': 0.9633221428571431}
+Validation stats for epoch 38: {'val/loss': 1.3207172945340475, 'val/top1': 59.166666666666664, 'val/top5': 91.93333333333334, 'val/f1_macro': 0.5930426518090997, 'val/f1_micro': 0.5916666666666667, 'val/f1_weighted': 0.5930426518090995, 'val/auc_macro': 0.9579207142857142, 'val/auc_weighted': 0.9579207142857142}
+Validation stats for epoch 39: {'val/loss': 1.2397785509030024, 'val/top1': 60.666666666666664, 'val/top5': 93.46666666666667, 'val/f1_macro': 0.6133051306115045, 'val/f1_micro': 0.607, 'val/f1_weighted': 0.6133051306115044, 'val/auc_macro': 0.9672732142857142, 'val/auc_weighted': 0.9672732142857142}
+Validation stats for epoch 40: {'val/loss': 0.868306229074796, 'val/top1': 72.23333333333333, 'val/top5': 96.1, 'val/f1_macro': 0.7275990740802919, 'val/f1_micro': 0.7223333333333334, 'val/f1_weighted': 0.727599074080292, 'val/auc_macro': 0.9792560714285715, 'val/auc_weighted': 0.9792560714285714}
+Validation stats for epoch 41: {'val/loss': 0.9148192247152328, 'val/top1': 70.03333333333333, 'val/top5': 96.2, 'val/f1_macro': 0.7005286454693216, 'val/f1_micro': 0.7003333333333334, 'val/f1_weighted': 0.7005286454693216, 'val/auc_macro': 0.977155, 'val/auc_weighted': 0.9771549999999999}
+Validation stats for epoch 42: {'val/loss': 0.7900874837636948, 'val/top1': 75.26666666666667, 'val/top5': 95.73333333333333, 'val/f1_macro': 0.750751337321152, 'val/f1_micro': 0.7526666666666667, 'val/f1_weighted': 0.750751337321152, 'val/auc_macro': 0.9809742857142857, 'val/auc_weighted': 0.9809742857142857}
+Validation stats for epoch 43: {'val/loss': 0.8380876495043437, 'val/top1': 73.6, 'val/top5': 95.9, 'val/f1_macro': 0.7394013680995578, 'val/f1_micro': 0.736, 'val/f1_weighted': 0.7394013680995581, 'val/auc_macro': 0.9792604166666666, 'val/auc_weighted': 0.9792604166666666}
+Validation stats for epoch 44: {'val/loss': 0.8738305831352869, 'val/top1': 72.2, 'val/top5': 95.8, 'val/f1_macro': 0.7306700449714346, 'val/f1_micro': 0.722, 'val/f1_weighted': 0.7306700449714347, 'val/auc_macro': 0.9804720238095238, 'val/auc_weighted': 0.9804720238095238}
+Validation stats for epoch 45: {'val/loss': 0.7286452037890753, 'val/top1': 77.8, 'val/top5': 96.46666666666667, 'val/f1_macro': 0.77838726262728, 'val/f1_micro': 0.778, 'val/f1_weighted': 0.7783872626272801, 'val/auc_macro': 0.9848342857142857, 'val/auc_weighted': 0.9848342857142857}
+Validation stats for epoch 46: {'val/loss': 0.7020875366528829, 'val/top1': 78.5, 'val/top5': 96.76666666666667, 'val/f1_macro': 0.7866286175998806, 'val/f1_micro': 0.785, 'val/f1_weighted': 0.7866286175998807, 'val/auc_macro': 0.9858777976190475, 'val/auc_weighted': 0.9858777976190477}
+Validation stats for epoch 47: {'val/loss': 0.6787750344276429, 'val/top1': 78.06666666666666, 'val/top5': 97.3, 'val/f1_macro': 0.7808034165475537, 'val/f1_micro': 0.7806666666666666, 'val/f1_weighted': 0.7808034165475535, 'val/auc_macro': 0.9876197619047619, 'val/auc_weighted': 0.987619761904762}
+Validation stats for epoch 48: {'val/loss': 0.7066596611340841, 'val/top1': 78.16666666666667, 'val/top5': 97.23333333333333, 'val/f1_macro': 0.7841614069424552, 'val/f1_micro': 0.7816666666666666, 'val/f1_weighted': 0.784161406942455, 'val/auc_macro': 0.9858413690476191, 'val/auc_weighted': 0.9858413690476191}
+Validation stats for epoch 49: {'val/loss': 0.6998375198841095, 'val/top1': 78.36666666666666, 'val/top5': 96.93333333333334, 'val/f1_macro': 0.7854829467790483, 'val/f1_micro': 0.7836666666666666, 'val/f1_weighted': 0.7854829467790485, 'val/auc_macro': 0.9854579166666666, 'val/auc_weighted': 0.9854579166666667}
+=> Evaluating on test set...
+Test images: 3000
+Test Confusion Matrix:
+[[ 96   4   5  25   1  19  29   3   1  12   0   0   3   1   1]
+ [  0 142   0  28   3   9  12   2   0   0   0   0   0   0   4]
+ [  2   6 104  13   7  23  33   1   0   3   3   0   1   1   3]
+ [  0  10   0 177   4   1   3   1   0   0   0   0   0   0   4]
+ [  0   8   0  19 158   3   2   2   0   0   0   0   0   0   8]
+ [  0   7   0  16   8 157   6   1   1   0   0   0   0   1   3]
+ [  1   5   0  25   0   1 161   2   0   0   0   0   0   0   5]
+ [  0   5   0  28  15   3   2 144   0   0   1   0   0   1   1]
+ [  0   4   0  41   9   5  37   3  96   0   0   0   0   0   5]
+ [  0   6   0  21   1   7  31   1   2 124   1   0   0   1   5]
+ [  0  14   0  18  15   7  11   0   0   0 126   0   0   0   9]
+ [ 11   2   1  45   7   4  18   1   3   8   0  84  14   0   2]
+ [ 12   6   1  28   4   4  13   2   1   1   0   1 126   0   1]
+ [  0   2   0  10   2   0   6   1   0   0   1   0   0 174   4]
+ [  0   9   0  37   0   0  36   1   0   0   0   0   0   0 117]]
+Basophil [0]: 48.0
+Erythroblast [1]: 71.0
+Eosinophil [2]: 52.0
+Smudge cell [3]: 88.5
+Atypical Lymphocyte [4]: 79.0
+Typical Lymphocyte [5]: 78.5
+Metamyelocyte [6]: 80.5
+Monoblast [7]: 72.0
+Monocyte [8]: 48.0
+Myelocyte [9]: 62.0
+Myeloblast [10]: 63.0
+Band Neutrophil [11]: 42.0
+Segmented Neutrophil [12]: 63.0
+Promyelocyte Bilobed [13]: 87.0
+Promyelocyte [14]: 58.5
+Test stats: {'test/loss': 1.2787567458550135, 'test/top1': 66.2, 'test/top5': 88.66666666666667, 'test/f1_macro': 0.6763311635659388, 'test/f1_micro': 0.662, 'test/f1_weighted': 0.6763311635659388, 'test/auc_macro': 0.9440655952380951, 'test/auc_weighted': 0.9440655952380951}
+Fin del script.
