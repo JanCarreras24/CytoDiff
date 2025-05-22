@@ -53,14 +53,14 @@ def load_data_loader(args):
 
 def load_synth_train_data_loader(args):
     synth_train_loader = get_synth_train_data_loader(
-        synth_train_data_dir=args.synth_train_data_dir,
+        dataroot=args.dataroot,  # Path
+        dataset_selection=args.dataset_selection,
         bs=args.batch_size,
-        n_img_per_cls=args.n_img_per_cls,
-        dataset=args.dataset_selection,
-        n_shot=args.n_shot,
-        real_train_fewshot_data_dir=args.real_train_fewshot_data_dir,
-        is_pooled_fewshot=args.is_pooled_fewshot,
+        is_rand_aug=args.is_rand_aug,
         model_type=args.model_type,
+        fold=args.fold,
+        is_hsv=args.is_hsv,
+        is_hed=args.is_hed,
     )
     return synth_train_loader
 
@@ -79,6 +79,7 @@ def main(args):
     # ==================================================
     train_loader, val_loader, test_loader = load_data_loader(args)
     if args.is_synth_train:
+        print("Loading synthetic training data...")
         train_loader = load_synth_train_data_loader(args)
 
         
@@ -217,10 +218,7 @@ def train_one_epoch(
 
     model.train()
 
-    for it, batch in enumerate(
-        #metric_logger.log_every(data_loader, 100, header)
-        data_loader
-    ):
+    for it, batch in enumerate(data_loader):
         if args.is_synth_train and args.is_pooled_fewshot:
             image, label, is_real = batch
         else:
@@ -273,15 +271,47 @@ def train_one_epoch(
             logit = model(image)
 
             if args.is_synth_train and args.is_pooled_fewshot:
-                loss_real = criterion(logit[is_real == 1], label[is_real == 1])
-                loss_synth = criterion(logit[is_real == 0], label[is_real == 0])
-                loss = args.lambda_1 * loss_real + (1 - args.lambda_1) * loss_synth
+                print("Ha entrat al loop de is_synth_train i is_pooled_fewshot")
+                mask_real = (is_real == 1)
+                mask_synth = (is_real == 0)
+                #print("  mask_real sum:", mask_real.sum().item(), "mask_synth sum:", mask_synth.sum().item())
+
+                n_real = mask_real.sum().item()
+                n_synth = mask_synth.sum().item()
+                n_total = n_real + n_synth
+
+                if n_total == 0:
+                    print("[ERROR] No samples in batch!")
+                    sys.exit(1)
+
+                loss = 0.0
+
+                if n_real > 0:
+                    loss_real = criterion(logit[mask_real], label[mask_real])
+                    weighted_loss_real = args.lambda_1 * (n_real / n_total) * loss_real
+                    loss += weighted_loss_real
+                else:
+                    pass
+
+                if n_synth > 0:
+                    loss_synth = criterion(logit[mask_synth], label[mask_synth])
+                    weighted_loss_synth = (1 - args.lambda_1) * (n_synth / n_total) * loss_synth
+                    loss += weighted_loss_synth
+                else:
+                    pass
+
+                #print("  loss_real:", loss_real.item() if n_real > 0 else "-", 
+                    #"loss_synth:", loss_synth.item() if n_synth > 0 else "-", 
+                    #"loss:", loss.item())
+
             else:
+                print("No ha entrat al loop de is_synth_train i is_pooled_fewshot")
                 loss = criterion(logit, label)
 
         if not math.isfinite(loss.item()):
             print("Loss is {}, stopping training".format(loss.item()))
             sys.exit(1)
+
 
         # parameter update
         optimizer.zero_grad()
@@ -304,11 +334,7 @@ def train_one_epoch(
         if scheduler is not None:
             scheduler.step()
 
-    # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    # see training reults
-    # print("Averaged train stats:", metric_logger) 
-
     return {"train/{}".format(k): meter.global_avg for k, meter in metric_logger.meters.items()}, best_stats, best_top1
 
 
