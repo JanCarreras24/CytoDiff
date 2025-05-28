@@ -57,7 +57,7 @@ class DatasetMarrMix(Dataset):  # bo
         
         self.dataroot = os.path.join(dataroot, '')  
 
-        metadata_path = os.path.join(self.dataroot, 'matek_metadata_mix.csv')
+        metadata_path = os.path.join(self.dataroot, 'matek_metadata.csv')
         try:
             metadata = pd.read_csv(metadata_path)
         except FileNotFoundError:

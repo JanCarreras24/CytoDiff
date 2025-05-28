@@ -53,14 +53,14 @@ def load_data_loader(args):
 
 def load_synth_train_data_loader(args):
     synth_train_loader = get_synth_train_data_loader(
-        synth_train_data_dir=args.synth_train_data_dir,
+        dataroot=args.dataroot,  # Path
+        dataset_selection=args.dataset_selection,
         bs=args.batch_size,
-        n_img_per_cls=args.n_img_per_cls,
-        dataset=args.dataset_selection,
-        n_shot=args.n_shot,
-        real_train_fewshot_data_dir=args.real_train_fewshot_data_dir,
-        is_pooled_fewshot=args.is_pooled_fewshot,
+        is_rand_aug=args.is_rand_aug,
         model_type=args.model_type,
+        fold=args.fold,
+        is_hsv=args.is_hsv,
+        is_hed=args.is_hed,
     )
     return synth_train_loader
 
@@ -79,6 +79,7 @@ def main(args):
     # ==================================================
     train_loader, val_loader, test_loader = load_data_loader(args)
     if args.is_synth_train:
+        print("Loading synthetic training data...")
         train_loader = load_synth_train_data_loader(args)
 
         
@@ -100,7 +101,7 @@ def main(args):
 
     model = model.cuda()
 
-    criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss(reduction='sum')
 
     # CutMix and MixUp augmentation
     if args.is_mix_aug:
@@ -217,10 +218,7 @@ def train_one_epoch(
 
     model.train()
 
-    for it, batch in enumerate(
-        #metric_logger.log_every(data_loader, 100, header)
-        data_loader
-    ):
+    for it, batch in enumerate(data_loader):
         if args.is_synth_train and args.is_pooled_fewshot:
             image, label, is_real = batch
         else:
@@ -273,15 +271,27 @@ def train_one_epoch(
             logit = model(image)
 
             if args.is_synth_train and args.is_pooled_fewshot:
-                loss_real = criterion(logit[is_real == 1], label[is_real == 1])
-                loss_synth = criterion(logit[is_real == 0], label[is_real == 0])
-                loss = args.lambda_1 * loss_real + (1 - args.lambda_1) * loss_synth
+                mask_real = (is_real == 1)
+                mask_synth = (is_real == 0)
+
+                n_real = mask_real.sum().item()
+                n_synth = mask_synth.sum().item()
+                n_total = n_real + n_synth
+
+                loss_real = criterion(logit[mask_real], label[mask_real]) if n_real > 0 else 0.0
+                loss_synth = criterion(logit[mask_synth], label[mask_synth]) if n_synth > 0 else 0.0
+
+                weighted_loss = args.lambda_1 * loss_real + (1 - args.lambda_1) * loss_synth
+
+                loss = weighted_loss / n_total
+
             else:
                 loss = criterion(logit, label)
 
         if not math.isfinite(loss.item()):
             print("Loss is {}, stopping training".format(loss.item()))
             sys.exit(1)
+
 
         # parameter update
         optimizer.zero_grad()
@@ -304,11 +314,7 @@ def train_one_epoch(
         if scheduler is not None:
             scheduler.step()
 
-    # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    # see training reults
-    # print("Averaged train stats:", metric_logger) 
-
     return {"train/{}".format(k): meter.global_avg for k, meter in metric_logger.meters.items()}, best_stats, best_top1
 
 
@@ -374,7 +380,6 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
     stat_dict[f"{prefix}/f1_weighted"] = f1_weighted
 
     # AUC
-    auc = float("nan")
     unique_targets = np.unique(targets)
 
     if len(unique_targets) == args.n_classes:
@@ -398,11 +403,12 @@ def eval(model, criterion, data_loader, epoch, fp16_scaler, args, prefix="test")
         # Confusion matrix
         conf_matrix = confusion_matrix(targets, preds)
         print(f"{prefix.capitalize()} Confusion Matrix:\n{conf_matrix}")
-        #stat_dict[f"{prefix}/confusion_matrix"] = conf_matrix.tolist()
 
         # Calculate per class accuracy
+        targets_acc = torch.tensor(targets)
+        probs_acc = torch.tensor(probs)
         acc_per_class = [
-            get_accuracy(probs[targets == cls_idx], targets[targets == cls_idx], topk=(1,))[0].item()
+            get_accuracy(probs_acc[targets_acc == cls_idx], targets_acc[targets_acc == cls_idx], topk=(1,))[0].item()
             for cls_idx in range(args.n_classes)
         ]
         for cls_idx, acc in enumerate(acc_per_class):
@@ -442,6 +448,7 @@ if __name__ == "__main__":
         args = get_args()
         print(f"Argumentos recibidos: {args}")
         main(args)
+        print("Loss computed with sum reduction.")
         print("Fin del script.")
     except Exception as e:
         print(f"Error durante la ejecución: {e}")

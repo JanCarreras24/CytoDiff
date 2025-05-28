@@ -154,6 +154,10 @@ def get_args():
     parser.add_argument('--is_pooled_fewshot', type=str2bool, default=False,
                         help='Acticate different transformation fot synthetic & real (True o False)')    
     
+    # Añadir el valor de lambda_1
+    parser.add_argument("--lambda_1", type=float2none, default=0.8,
+                        help="weight for loss from real/synth data")
+    
 
     # Añadir el argumento n_classes
     parser.add_argument('--n_classes', type=int, default=15,

@@ -9,7 +9,7 @@ import clip
 from timm.models._manipulate import checkpoint_seq
 
 from models.lora import lora_replace_attention_layers
-from util_data import SUBSET_NAMES, TEMPLATES_SMALL
+from util_data import SUBSET_NAMES, TEMPLATES_SMALL, PROMPTS_BY_CLASS
 
 def get_dataset_name_for_template(dataset):
     dataset_name = {
@@ -47,7 +47,7 @@ class CLIP(nn.Module):
         self.clip_version = clip_version
 
         # TODO: change the number of templates
-        self.templates = TEMPLATES_SMALL[:1]
+        #self.templates = TEMPLATES_SMALL[:1]
 
         #self.clip, _ = clip.load(clip_version, device="cpu", download_root=clip_download_dir)
         self.clip, _ = clip.load(clip_version, device="cuda" if torch.cuda.is_available() else "cpu", download_root=clip_download_dir)
@@ -94,18 +94,16 @@ class CLIP(nn.Module):
 
         texts = []
         for classname in SUBSET_NAMES[self.dataset]:
+            if classname not in PROMPTS_BY_CLASS:
+                raise ValueError(f"No prompt found for class: {classname}")
 
-            class_texts = []
-            for template in self.templates:
-                class_texts.append(
-                    template.format(self.dataset_name, classname))
+            prompt = PROMPTS_BY_CLASS[classname]
+            tokenized = clip.tokenize([prompt])  # Tokeniza como lista de un solo string
+            texts.append(tokenized)
 
-            class_texts = clip.tokenize(class_texts)
-
-            texts.append(class_texts)
-
-        texts = torch.stack(texts)
+        texts = torch.stack(texts)  # (num_classes, 1, token_len)
         return texts
+
 
     def set_learnable_params(self):
         # turn off all parameters

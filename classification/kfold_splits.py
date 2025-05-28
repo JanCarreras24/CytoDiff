@@ -81,7 +81,8 @@ def generate_kfold_splits(
     print(f"K-Fold counts saved to '{counts_filename}'")
 
 # Example usage:
-data_path = '/home/aih/jan.boada/project/codes/classification/'
+
+data_path = '/home/aih/jan.boada/project/codes/classification/csv_files/synthetic/3000'
 generate_kfold_splits(data_path=data_path, 
                       num_splits=5, 
                       random_state=42,

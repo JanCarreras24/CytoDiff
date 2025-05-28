@@ -1,0 +1,18 @@
+\begin{table}[ht]
+    \centering
+    \caption{Classification performance of ResNet-50 trained on all real images and 100 additional synthetic images per class. Results are averaged over 5 cross-validation folds.}
+    \vspace{-0.3cm}
+    \tabcolsep=0.03\linewidth
+    \resizebox{0.8\textwidth}{!}{
+    \begin{tabular}{lcc}
+    \toprule
+    \textbf{Metric} & \textbf{Validation} & \textbf{Test} \\
+    \midrule
+    Accuracy           & 0.7701 \scriptsize$\pm0.02$ & 0.6408 \scriptsize$\pm0.02$ \\
+    F1 Macro           & 0.7711 \scriptsize$\pm0.02$ & 0.6519 \scriptsize$\pm0.02$ \\
+    F1 Micro           & 0.7701 \scriptsize$\pm0.02$ & 0.6408 \scriptsize$\pm0.02$ \\
+    AUC Macro          & 0.9787 \scriptsize$\pm0.00$ & 0.9389 \scriptsize$\pm0.01$ \\
+    \bottomrule
+    \end{tabular}}
+    \label{tab:resnet50_100synthetic}
+\end{table}

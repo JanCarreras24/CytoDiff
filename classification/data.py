@@ -77,86 +77,11 @@ def get_transforms(model_type):
 
 
 
-class DatasetSynthImage(Dataset):
-    def __init__(
-        self, 
-        synth_train_data_dir, 
-        transform, 
-        target_label=None, 
-        n_img_per_cls=None,
-        dataset='matek', 
-        n_shot=0,
-        real_train_fewshot_data_dir='', 
-        is_pooled_fewshot=False, 
-        **kwargs
-    ):
-        self.synth_train_data_dir = synth_train_data_dir
-        self.transform = transform
-        self.is_pooled_fewshot = is_pooled_fewshot
-        
-        self.image_paths = []
-        self.image_labels = []
-
-        value_counts = defaultdict(int)
-        for label, class_name in enumerate(SUBSET_NAMES[dataset]):
-            if target_label is not None and label != target_label:
-                continue
-            for fname in os.listdir(ospj(synth_train_data_dir, class_name)):
-                if fname.endswith(".txt"):
-                    continue
-                if fname.endswith(".json"):
-                    continue
-                if n_img_per_cls is not None:
-                    if value_counts[label] < n_img_per_cls:
-                        value_counts[label] += 1
-                    else:
-                        continue
-                self.image_paths.append(
-                    ospj(synth_train_data_dir, class_name, fname))
-                self.image_labels.append(label)
-
-        if is_pooled_fewshot:
-            if n_shot == 0:
-                n_shot = 16
-            reps = round(n_img_per_cls // n_shot)
-            for label, class_name in enumerate(SUBSET_NAMES[dataset]):
-                real_img_paths = os.listdir(
-                    ospj(real_train_fewshot_data_dir, class_name))
-                real_subset = [
-                    ospj(
-                        real_train_fewshot_data_dir, 
-                        class_name, 
-                        real_img_paths[i]
-                    ) for i in range(n_shot)
-                ]
-                for i in range(reps):
-                    self.image_paths.extend(real_subset)
-                    self.image_labels.extend([label] * n_shot)
-                
-    def __getitem__(self, idx):
-        image_path = self.image_paths[idx]
-        image_label = self.image_labels[idx]
-        image = Image.open(image_path)
-        image = image.convert('RGB')
-        image = self.transform(image)
-        is_real = "real_train" in image_path
-
-        if self.is_pooled_fewshot:
-            return image, image_label, is_real
-        else:
-            return image, image_label
-
-    def __len__(self):
-        return len(self.image_paths)
-
-
-
-
 def get_data_loader(
     dataroot,  # Path principal para DatasetMarr
     dataset_selection="matek",  # Dataset a seleccionar
-    bs=32, 
-    eval_bs=32,
+    bs=64, 
+    eval_bs=32, #1
     is_rand_aug=True,
     model_type=None,
     fold=0,  # Fold para k-fold cross-validation
@@ -236,8 +161,7 @@ def get_data_loader(
 def get_synth_train_data_loader(
     dataroot,  # Path al CSV que contiene imágenes reales y sintéticas
     dataset_selection="matek",  # Dataset a seleccionar
-    bs=32,
-    eval_bs=32,
+    bs=64,
     is_rand_aug=True,
     model_type=None,
     fold=0,  # Fold para k-fold cross-validation

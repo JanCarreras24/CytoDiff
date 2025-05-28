@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Image directory
-root_directory = "/home/aih/jan.boada/project/codes/results/synthetic2/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train"
+root_directory = "/home/aih/jan.boada/project/codes/results/synthetic/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train"
 
 data_list = []
 
@@ -23,6 +23,6 @@ for label in sorted(os.listdir(root_directory)):
 df = pd.DataFrame(data_list)
 
 # Save csv file (witout folds, just the base)
-csv_path = '/home/aih/jan.boada/project/codes/classification/matek_metadata_base.csv'
+csv_path = '/home/aih/jan.boada/project/codes/classification/csv_files/synthetic/3000/matek_metadata_base.csv'
 df.to_csv(csv_path, index=False)
 print(f"CSV base guardado en: {csv_path}")

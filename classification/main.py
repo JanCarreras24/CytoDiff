@@ -271,7 +271,6 @@ def train_one_epoch(
             logit = model(image)
 
             if args.is_synth_train and args.is_pooled_fewshot:
-                print("Ha entrat al loop de is_synth_train i is_pooled_fewshot")
                 mask_real = (is_real == 1)
                 mask_synth = (is_real == 0)
                 #print("  mask_real sum:", mask_real.sum().item(), "mask_synth sum:", mask_synth.sum().item())
@@ -305,7 +304,6 @@ def train_one_epoch(
                     #"loss:", loss.item())
 
             else:
-                print("No ha entrat al loop de is_synth_train i is_pooled_fewshot")
                 loss = criterion(logit, label)
 
         if not math.isfinite(loss.item()):
