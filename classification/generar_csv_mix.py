@@ -48,7 +48,7 @@ def generate_combined_csv(real_dir, synthetic_dir, max_synthetic_per_class, outp
 
 real_images_dir = "/ictstr01/home/aih/jan.boada/project/codes/datasets/data/matek/real_train_fewshot/seed0"
 synthetic_images_dir = "/home/aih/jan.boada/project/codes/results/synthetic/matek/sd2.1/gs2.0_nis50/shot16_seed6_template1_lr0.0001_ep300/train"
-max_synthetic_per_class = 2000 
+max_synthetic_per_class = 5000 
 output_csv = f'/home/aih/jan.boada/project/codes/classification/csv_files/mix/{max_synthetic_per_class}/matek_metadata_base.csv'
 
 generate_combined_csv(real_images_dir, synthetic_images_dir, max_synthetic_per_class, output_csv)

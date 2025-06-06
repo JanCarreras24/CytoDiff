@@ -98,10 +98,10 @@ class CLIP(nn.Module):
                 raise ValueError(f"No prompt found for class: {classname}")
 
             prompt = PROMPTS_BY_CLASS[classname]
-            tokenized = clip.tokenize([prompt])  # Tokeniza como lista de un solo string
+            tokenized = clip.tokenize([prompt])
             texts.append(tokenized)
 
-        texts = torch.stack(texts)  # (num_classes, 1, token_len)
+        texts = torch.stack(texts)
         return texts
 
 
@@ -144,7 +144,6 @@ class CLIP(nn.Module):
 
     def forward_text(self, tokenized_text):
         n_classes, n_prompts, n_token = tokenized_text.size()
-#         tokenized_text = einops.rearrange(tokenized_text, "c p d -> (c p) d")
         tokenized_text = tokenized_text.view(-1, n_token)
         with torch.set_grad_enabled(self.is_lora_text):
             text_feats = self.clip.encode_text(tokenized_text)
@@ -171,6 +170,8 @@ class CLIP(nn.Module):
 
         image_feats = self.forward_image(x)
         text_feats = self.forward_text(tokenized_text)
+
+
 
         logit_scale = self.clip.logit_scale.exp()
 

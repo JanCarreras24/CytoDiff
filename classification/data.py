@@ -49,31 +49,56 @@ def get_transforms(model_type):
     if model_type == "clip":
         norm_mean = CLIP_NORM_MEAN
         norm_std = CLIP_NORM_STD
+        image_size = 224  # CLIP typically uses 224x224 images
+
+        train_transform = T.Compose([
+            T.RandomResizedCrop(size=image_size, scale=(0.8, 1.0), ratio=(0.8, 1.2)),
+            T.RandomHorizontalFlip(0.5),
+            T.RandomVerticalFlip(0.5),
+            T.RandomApply([T.RandomRotation((0, 180))], p=0.33),
+            T.RandomApply([T.ColorJitter(brightness=0.5, contrast=0, saturation=1, hue=0.3)], p=0.33),
+            T.RandomApply([T.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1))], p=0.33),
+            T.RandomApply([T.RandomAdjustSharpness(sharpness_factor=0.8)], p=0.33),
+            T.ToTensor(),
+            T.Normalize(mean=norm_mean, std=norm_std)
+        ])
+
+        # Test & validation transformations
+        test_transform = T.Compose([
+            T.Resize(image_size),  # same as training
+            T.ToTensor(),
+            T.Normalize(mean=norm_mean, std=norm_std)
+        ]) 
+
+        return train_transform, test_transform
+
+
+    
     elif model_type == "resnet50":
         norm_mean = NORM_MEAN
         norm_std = NORM_STD
 
-    # Train transformations from dataset_wbc.py)
-    train_transform = T.Compose([
-        T.RandomResizedCrop(size=384, scale=(0.8, 1.0), ratio=(0.8, 1.2)),
-        T.RandomHorizontalFlip(0.5),
-        T.RandomVerticalFlip(0.5),
-        T.RandomApply([T.RandomRotation((0, 180))], p=0.33),
-        T.RandomApply([T.ColorJitter(brightness=0.5, contrast=0, saturation=1, hue=0.3)], p=0.33),
-        T.RandomApply([T.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1))], p=0.33),
-        T.RandomApply([T.RandomAdjustSharpness(sharpness_factor=0.8)], p=0.33),
-        T.ToTensor(),
-        T.Normalize(mean=norm_mean, std=norm_std)
-    ])
+        # Train transformations from dataset_wbc.py)
+        train_transform = T.Compose([
+            T.RandomResizedCrop(size=384, scale=(0.8, 1.0), ratio=(0.8, 1.2)),
+            T.RandomHorizontalFlip(0.5),
+            T.RandomVerticalFlip(0.5),
+            T.RandomApply([T.RandomRotation((0, 180))], p=0.33),
+            T.RandomApply([T.ColorJitter(brightness=0.5, contrast=0, saturation=1, hue=0.3)], p=0.33),
+            T.RandomApply([T.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1))], p=0.33),
+            T.RandomApply([T.RandomAdjustSharpness(sharpness_factor=0.8)], p=0.33),
+            T.ToTensor(),
+            T.Normalize(mean=norm_mean, std=norm_std)
+        ])
 
-    # Test & validation transformations
-    test_transform = T.Compose([
-        T.Resize(384),  # same as training
-        T.ToTensor(),
-        T.Normalize(mean=norm_mean, std=norm_std)
-    ]) 
+        # Test & validation transformations
+        test_transform = T.Compose([
+            T.Resize(384),  # same as training
+            T.ToTensor(),
+            T.Normalize(mean=norm_mean, std=norm_std)
+        ]) 
 
-    return train_transform, test_transform
+        return train_transform, test_transform
 
 
 

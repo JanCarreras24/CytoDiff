@@ -18,9 +18,9 @@ conda activate my_env
 # Variables de configuración
 GPU=0
 FOLD=4  # 0, 1, 2, 3, 4, 
-DATAROOT=/home/aih/jan.boada/project/codes/classification/csv_files/mix/balanced3000
+DATAROOT=/home/aih/jan.boada/project/codes/classification/csv_files/mix/100
 DATASET_SELECTION=matek
-OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/mix/loss_together/balanced3000/fold$FOLD
+OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/clip/mix/prova100/fold$FOLD
 CLIP_DIR=/home/aih/jan.boada/project/codes/classification/models/clip_dir
 IS_SYNTH_TRAIN=False #True
 IS_POOLED_FEWSHOT=False #True
@@ -30,8 +30,8 @@ IS_HSV=True
 IS_HED=True
 IS_RAND_AUG=True
 IS_MIX_AUG=True
-MODEL_TYPE=resnet50 # clip
-CLIP_VERSION=ViT-B-32
+MODEL_TYPE=clip # resnet50
+CLIP_VERSION=ViT-B/32
 EPOCHS=100 #10
 WARMUP_EPOCHS=30 #3
 LR=1e-4
@@ -58,7 +58,7 @@ echo "LR: $LR"
 echo "=== EJECUTANDO MAIN.PY ==="
 
 # Ejecutar el script principal
-CUDA_VISIBLE_DEVICES=$GPU python main3.py \
+CUDA_VISIBLE_DEVICES=$GPU python main.py \
 --model_type=$MODEL_TYPE \
 --clip_download_dir=$CLIP_DIR \
 --clip_version=$CLIP_VERSION \

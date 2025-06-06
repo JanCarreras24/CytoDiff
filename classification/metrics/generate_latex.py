@@ -2,15 +2,12 @@ import re
 
 # === Input de ejemplo ===
 input_text = """
-val_top1 = 0.7701 ± 0.02
-val_f1_macro = 0.7711 ± 0.02
-val_f1_micro = 0.7701 ± 0.02
-val_auc_macro = 0.9787 ± 0.00
-test_top1 = 0.6408 ± 0.02
-test_f1_macro = 0.6519 ± 0.02
-test_f1_micro = 0.6408 ± 0.02
-test_auc_macro = 0.9389 ± 0.01
-
+val_top1 = 0.8020 ± 0.02
+val_f1_macro = 0.8021 ± 0.02
+val_auc_macro = 0.9870 ± 0.00
+test_top1 = 0.7023 ± 0.01
+test_f1_macro = 0.7211 ± 0.01
+test_auc_macro = 0.9666 ± 0.00
 """
 
 # === Extraer valores ===
@@ -21,7 +18,7 @@ metrics = {key: (mean, std) for key, mean, std in matches}
 # === Generar tabla LaTeX ===
 latex = r"""\begin{table}[ht]
     \centering
-    \caption{Classification performance of ResNet-50 trained on all real images and 100 additional synthetic images per class. Results are averaged over 5 cross-validation folds.}
+    \caption{Classification performance of the fine-tuned CLIP model trained on all real images and 100 additional synthetic images per class. Results are averaged over 5 cross-validation folds.}
     \vspace{-0.3cm}
     \tabcolsep=0.03\linewidth
     \resizebox{0.8\textwidth}{!}{
@@ -35,7 +32,6 @@ latex = r"""\begin{table}[ht]
 rows = [
     ("Accuracy", "val_top1", "test_top1"),
     ("F1 Macro", "val_f1_macro", "test_f1_macro"),
-    ("F1 Micro", "val_f1_micro", "test_f1_micro"),
     ("AUC", "val_auc_macro", "test_auc_macro")
 ]
 
@@ -46,7 +42,7 @@ for label, val_key, test_key in rows:
 
 latex += r"""    \bottomrule
     \end{tabular}}
-    \label{tab:resnet50_100synthetic}
+    \label{tab:clip_100synthetic}
 \end{table}
 """
 

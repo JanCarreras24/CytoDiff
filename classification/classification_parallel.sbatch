@@ -18,17 +18,18 @@ FOLD=$2
 GPU=0
 DATASET_SELECTION=matek
 DATAROOT=/home/aih/jan.boada/project/codes/classification/csv_files/mix/$NUM_IMAGES
-OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/mix/loss3/$NUM_IMAGES/fold$FOLD
-CLIP_DIR=/home/aih/jan.boada/project/codes/classification/models/clip.py
-IS_SYNTH_TRAIN=True
-IS_POOLED_FEWSHOT=True
+OUTPUT_DIR=/home/aih/jan.boada/project/codes/results/classification/clip/mix/$NUM_IMAGES/fold$FOLD
+CLIP_DIR=/home/aih/jan.boada/project/codes/classification/models/clip_dir
+IS_SYNTH_TRAIN=False # True
+IS_POOLED_FEWSHOT=False # True
 N_CLASS=15
 
 IS_HSV=True
 IS_HED=True
 IS_RAND_AUG=True
 IS_MIX_AUG=True
-MODEL_TYPE=resnet50
+MODEL_TYPE=clip # resnet50
+CLIP_VERSION=ViT-B/32
 EPOCHS=100
 WARMUP_EPOCHS=30
 LR=1e-4
@@ -59,9 +60,10 @@ mkdir -p $OUTPUT_DIR
 
 echo "=== EJECUTANDO MAIN.PY ==="
 
-CUDA_VISIBLE_DEVICES=$GPU python main3.py \
+CUDA_VISIBLE_DEVICES=$GPU python main.py \
 --model_type=$MODEL_TYPE \
 --clip_download_dir=$CLIP_DIR \
+--clip_version=$CLIP_VERSION \
 --is_lora_image=True \
 --is_lora_text=True \
 --output_dir=$OUTPUT_DIR \

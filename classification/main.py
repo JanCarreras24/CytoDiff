@@ -87,6 +87,7 @@ def main(args):
     # Model and optimizer
     # ==================================================
     if args.model_type == "clip":
+
         model = CLIP(
             dataset=args.dataset_selection,
             is_lora_image=args.is_lora_image,
@@ -227,6 +228,7 @@ def train_one_epoch(
         label_origin = label
         label_origin = label_origin.cuda(non_blocking=True)
 
+
         # apply CutMix and MixUp augmentation
         if args.is_mix_aug:
             p = random.random()
@@ -253,6 +255,7 @@ def train_one_epoch(
 
                 else:
                     image, label = cutmix_or_mixup(image, label)
+
             
 
         it = len(data_loader) * epoch + it  # global training iteration
@@ -265,10 +268,13 @@ def train_one_epoch(
             param_group["lr"] = args.lr_schedule[it]
             if i == 0:  # only the first group is regularized
                 param_group["weight_decay"] = args.wd
+                
 
         # forward pass
         with torch.cuda.amp.autocast(fp16_scaler is not None):
             logit = model(image)
+
+
 
             if args.is_synth_train and args.is_pooled_fewshot:
                 mask_real = (is_real == 1)

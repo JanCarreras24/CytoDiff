@@ -82,7 +82,7 @@ def generate_kfold_splits(
 
 # Example usage:
 
-data_path = '/home/aih/jan.boada/project/codes/classification/csv_files/synthetic/3000'
+data_path = '/home/aih/jan.boada/project/codes/classification/csv_files/mix/5000'
 generate_kfold_splits(data_path=data_path, 
                       num_splits=5, 
                       random_state=42,

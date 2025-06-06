@@ -1,0 +1,120 @@
+--- Experimento 0 ---
+val_top1 = 0.7813 ± 0.01
+val_f1_macro = 0.2740 ± 0.05
+val_auc_macro = 0.8793 ± 0.02
+test_top1 = 0.6183 ± 0.03
+test_f1_macro = 0.2302 ± 0.02
+test_auc_macro = 0.8299 ± 0.02
+
+--- Experimento 100 ---
+val_top1 = 0.7051 ± 0.03
+val_f1_macro = 0.4143 ± 0.06
+val_auc_macro = 0.9207 ± 0.00
+test_top1 = 0.6084 ± 0.03
+test_f1_macro = 0.4248 ± 0.02
+test_auc_macro = 0.8831 ± 0.01
+
+--- Experimento 200 ---
+val_top1 = 0.7338 ± 0.02
+val_f1_macro = 0.5924 ± 0.02
+val_auc_macro = 0.9495 ± 0.00
+test_top1 = 0.6488 ± 0.02
+test_f1_macro = 0.5380 ± 0.02
+test_auc_macro = 0.9145 ± 0.00
+
+--- Experimento 300 ---
+val_top1 = 0.7273 ± 0.01
+val_f1_macro = 0.6231 ± 0.04
+val_auc_macro = 0.9516 ± 0.01
+test_top1 = 0.6515 ± 0.01
+test_f1_macro = 0.5814 ± 0.01
+test_auc_macro = 0.9190 ± 0.01
+
+--- Experimento 400 ---
+val_top1 = 0.7299 ± 0.02
+val_f1_macro = 0.6535 ± 0.03
+val_auc_macro = 0.9574 ± 0.01
+test_top1 = 0.6703 ± 0.02
+test_f1_macro = 0.6007 ± 0.02
+test_auc_macro = 0.9299 ± 0.01
+
+--- Experimento 500 ---
+val_top1 = 0.7435 ± 0.02
+val_f1_macro = 0.6915 ± 0.03
+val_auc_macro = 0.9638 ± 0.00
+test_top1 = 0.6822 ± 0.01
+test_f1_macro = 0.6368 ± 0.02
+test_auc_macro = 0.9383 ± 0.00
+
+--- Experimento 600 ---
+val_top1 = 0.7512 ± 0.02
+val_f1_macro = 0.7063 ± 0.02
+val_auc_macro = 0.9651 ± 0.00
+test_top1 = 0.6903 ± 0.02
+test_f1_macro = 0.6461 ± 0.01
+test_auc_macro = 0.9436 ± 0.01
+
+--- Experimento 700 ---
+val_top1 = 0.7665 ± 0.01
+val_f1_macro = 0.7264 ± 0.02
+val_auc_macro = 0.9675 ± 0.00
+test_top1 = 0.6999 ± 0.01
+test_f1_macro = 0.6595 ± 0.02
+test_auc_macro = 0.9459 ± 0.01
+
+--- Experimento 800 ---
+val_top1 = 0.7576 ± 0.02
+val_f1_macro = 0.7286 ± 0.02
+val_auc_macro = 0.9685 ± 0.00
+test_top1 = 0.6946 ± 0.01
+test_f1_macro = 0.6666 ± 0.01
+test_auc_macro = 0.9489 ± 0.00
+
+--- Experimento 900 ---
+val_top1 = 0.7796 ± 0.01
+val_f1_macro = 0.7535 ± 0.02
+val_auc_macro = 0.9730 ± 0.00
+test_top1 = 0.7066 ± 0.01
+test_f1_macro = 0.6851 ± 0.01
+test_auc_macro = 0.9520 ± 0.00
+
+--- Experimento 1000 ---
+val_top1 = 0.7706 ± 0.01
+val_f1_macro = 0.7461 ± 0.01
+val_auc_macro = 0.9729 ± 0.00
+test_top1 = 0.7073 ± 0.01
+test_f1_macro = 0.6892 ± 0.01
+test_auc_macro = 0.9543 ± 0.01
+
+--- Experimento 2000 ---
+val_top1 = 0.8159 ± 0.01
+val_f1_macro = 0.8140 ± 0.01
+val_auc_macro = 0.9844 ± 0.00
+test_top1 = 0.7212 ± 0.01
+test_f1_macro = 0.7242 ± 0.01
+test_auc_macro = 0.9629 ± 0.00
+
+--- Experimento 3000 ---
+val_top1 = 0.8284 ± 0.01
+val_f1_macro = 0.8290 ± 0.01
+val_auc_macro = 0.9878 ± 0.00
+test_top1 = 0.7339 ± 0.01
+test_f1_macro = 0.7402 ± 0.01
+test_auc_macro = 0.9689 ± 0.00
+
+--- Experimento balanced3000 ---
+val_top1 = 0.8020 ± 0.02
+val_f1_macro = 0.8021 ± 0.02
+val_auc_macro = 0.9870 ± 0.00
+test_top1 = 0.7023 ± 0.01
+test_f1_macro = 0.7211 ± 0.01
+test_auc_macro = 0.9666 ± 0.00
+
+--- Experimento synthetic ---
+val_top1 = 0.8710 ± 0.01
+val_f1_macro = 0.8726 ± 0.01
+val_auc_macro = 0.9949 ± 0.00
+test_top1 = 0.7697 ± 0.01
+test_f1_macro = 0.7845 ± 0.01
+test_auc_macro = 0.9814 ± 0.00
+

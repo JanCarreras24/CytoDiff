@@ -23,7 +23,7 @@ def parse_log_file(filepath):
                         "epoch": epoch,
                         "val/top1": metrics.get("val/top1"),
                         "val/f1_macro": metrics.get("val/f1_macro"),
-                        "val/f1_micro": metrics.get("val/f1_micro"),
+                        #"val/f1_micro": metrics.get("val/f1_micro"),
                         "val/auc_macro": metrics.get("val/auc_macro")
                     }
 
@@ -42,11 +42,11 @@ def parse_log_file(filepath):
         #"best_val_epoch": best_val.get("epoch"),  # Eliminada la epoch para no exportarla
         "val_top1": val_top1 / 100 if val_top1 is not None else None,
         "val_f1_macro": best_val.get("val/f1_macro"),
-        "val_f1_micro": best_val.get("val/f1_micro"),
+        #"val_f1_micro": best_val.get("val/f1_micro"),
         "val_auc_macro": best_val.get("val/auc_macro"),
         "test_top1": test_top1 / 100 if test_top1 is not None else None,
         "test_f1_macro": test_metrics.get("test/f1_macro"),
-        "test_f1_micro": test_metrics.get("test/f1_micro"),
+        #"test_f1_micro": test_metrics.get("test/f1_micro"),
         "test_auc_macro": test_metrics.get("test/auc_macro")
     }
 
@@ -55,7 +55,7 @@ def collect_all_results(base_dir, experiment_list):
     for exp in experiment_list:
         exp_path = os.path.join(base_dir, str(exp))
         for fold in range(5):
-            log_path = os.path.join(exp_path, f"fold{fold}", "matek", "resnet50", "log.log")
+            log_path = os.path.join(exp_path, f"fold{fold}", "matek", "clipViT-B", "32" ,"log.log") #resnet50
             if os.path.exists(log_path):
                 metrics = parse_log_file(log_path)
                 metrics["fold"] = fold
@@ -70,9 +70,9 @@ def save_results_to_csv(results, output_file):
         print("No hay resultados para guardar.")
         return
 
-    keys = ["experiment", "fold",  # "best_val_epoch" eliminado
-            "val_top1", "val_f1_macro", "val_f1_micro", "val_auc_macro", 
-            "test_top1", "test_f1_macro", "test_f1_micro", "test_auc_macro"]
+    keys = ["experiment", "fold",  # "best_val_epoch" "val_f1_micro" "test_f1_micro" removed
+            "val_top1", "val_f1_macro", "val_auc_macro", 
+            "test_top1", "test_f1_macro", "test_auc_macro"]
 
     with open(output_file, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=keys)
@@ -82,8 +82,15 @@ def save_results_to_csv(results, output_file):
     print(f"Resultados guardados en {output_file}")
 
 # Parámetros y ejecución:
-base_experiment_dir = "/home/aih/jan.boada/project/codes/results/classification/mix/loss_together"
+base_experiment_dir = "/home/aih/jan.boada/project/codes/results/classification/clip/mix"
 experiments = list(range(0, 1100, 100))  # [100, 200, ..., 1000]
+experiments.append(2000)
+experiments.append(3000)
+experiments.append("balanced3000")
+experiments.append("synthetic")
+
+
 
 results = collect_all_results(base_experiment_dir, experiments)
-save_results_to_csv(results, "results_5folds.csv")
+save_results_to_csv(results, "results_5folds_clip.csv")
+
