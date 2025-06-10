@@ -7,12 +7,12 @@ test_f1_macro = 0.2302 ± 0.02
 test_auc_macro = 0.8299 ± 0.02
 
 --- Experimento 100 ---
-val_top1 = 0.7051 ± 0.03
-val_f1_macro = 0.4143 ± 0.06
-val_auc_macro = 0.9207 ± 0.00
-test_top1 = 0.6084 ± 0.03
-test_f1_macro = 0.4248 ± 0.02
-test_auc_macro = 0.8831 ± 0.01
+val_top1 = 0.7058 ± 0.03
+val_f1_macro = 0.4351 ± 0.03
+val_auc_macro = 0.9227 ± 0.00
+test_top1 = 0.6190 ± 0.02
+test_f1_macro = 0.4269 ± 0.02
+test_auc_macro = 0.8863 ± 0.01
 
 --- Experimento 200 ---
 val_top1 = 0.7338 ± 0.02

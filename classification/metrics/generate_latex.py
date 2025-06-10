@@ -2,12 +2,12 @@ import re
 
 # === Input de ejemplo ===
 input_text = """
-val_top1 = 0.8020 ± 0.02
-val_f1_macro = 0.8021 ± 0.02
-val_auc_macro = 0.9870 ± 0.00
-test_top1 = 0.7023 ± 0.01
-test_f1_macro = 0.7211 ± 0.01
-test_auc_macro = 0.9666 ± 0.00
+val_top1 = 0.7058 ± 0.03
+val_f1_macro = 0.4351 ± 0.03
+val_auc_macro = 0.9227 ± 0.00
+test_top1 = 0.6190 ± 0.02
+test_f1_macro = 0.4269 ± 0.02
+test_auc_macro = 0.8863 ± 0.01
 """
 
 # === Extraer valores ===

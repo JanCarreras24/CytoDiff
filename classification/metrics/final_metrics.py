@@ -35,8 +35,8 @@ def summarize_results(input_csv, output_csv_summary, output_txt_summary=None):
 
 
 # Uso:
-input_csv = "results_5folds_resnet.csv"
-output_csv_summary = "final_metrics_resnet.csv"
-output_txt_summary = "final_metrics_resnet.txt"  # opcional
+input_csv = "results_5folds_clip.csv"
+output_csv_summary = "final_metrics_clip.csv"
+output_txt_summary = "final_metrics_clip.txt"  # opcional
 
 summarize_results(input_csv, output_csv_summary, output_txt_summary)
