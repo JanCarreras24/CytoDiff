@@ -1,4 +1,5 @@
-# Final Degree Project – Synthetic Blood Cell Image Generation and Classification
+# Final Degree Project – AI-Driven Cytomorphology Image Synthesis for Medical Diagnostics
+
 
 This repository contains the full codebase for the Final Degree Project in Bioinformatics, developed at Helmholtz Munich. The project aims to improve blood cell image classification by augmenting real data with high-quality synthetic images generated using diffusion models and LoRA-based fine-tuning.
 
@@ -19,7 +20,7 @@ Each step depends on the successful completion of the previous one. It is essent
 Before starting, make sure to install all required packages listed in the `requirements/` directory. You may use a virtual environment (e.g. `venv`, `conda`) to isolate dependencies.
 
 ```bash
-pip install -r requirements/your_requirements.txt
+pip install -r requirements/requirements.txt
 ```
 
 ---
@@ -50,13 +51,12 @@ This step will output synthetic, high-resolution blood cell images that mimic yo
 
 ## 🧠 3. Classification
 
-Finally, use the generated images—along with real ones—to train classification models.
+Finally, use the generated images to train classification models (ResNet-50 or CLIP).
 
 Inside the `classification/` directory:
 
-- Generate or edit CSV files for the data loaders
-- The code includes utilities for **5-fold cross-validation**
-- Train CNN-based classifiers on mixed (real + synthetic) datasets
+- Prepare the preprocessing steps required for the dataloader
+- Train CNN-based classifiers on real, synthetic, or mixed (real + synthetic) datasets
 
 You can modify the dataloader pipeline to suit your structure if needed.
 
@@ -93,4 +93,4 @@ June 2025
 ## 📜 License
 
 This repository is intended for academic and research purposes only.  
-Please contact the author for permission to reuse code or materials.
+If you have any questions or need further information, feel free to contact me at **jancarreras24@gmail.com**.
