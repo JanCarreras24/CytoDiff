@@ -38,7 +38,7 @@ IS_DATASETWISE=False
 FEWSHOT_SEED="seed6"
 
 
-CUDA_VISIBLE_DEVICES=$GPU python main_2.py \
+CUDA_VISIBLE_DEVICES=$GPU python main.py \
 --bs=$BS \
 --n_img_per_class=$NIPC \
 --sd_version=$SD \
