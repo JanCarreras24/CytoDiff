@@ -44,7 +44,7 @@ echo "FINAL_END_RANGE: $FINAL_END_RANGE"
 
 # Ejecutar el script para cada clase
 for CLASS_IDX in "${CLASS_IDXS[@]}"; do
-    CUDA_VISIBLE_DEVICES=$GPU python main_2.py \
+    CUDA_VISIBLE_DEVICES=$GPU python main.py \
     --dataset=$DATASET \
     --n_template=1 \
     --fewshot_seed=$FEWSHOT_SEED \
