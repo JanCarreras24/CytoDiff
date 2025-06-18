@@ -3,6 +3,9 @@
 
 This repository contains the full codebase for the Final Degree Project in Bioinformatics, developed at Helmholtz Munich. The project aims to improve blood cell image classification by augmenting real data with high-quality synthetic images generated using diffusion models and LoRA-based fine-tuning.
 
+![Workflow of Stable Diffusion with LoRA](classification/metrics/Figures/Workflow.png)
+
+
 ## 🔬 Project Pipeline
 
 The structure of this repository follows a three-stage pipeline:
