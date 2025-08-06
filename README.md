@@ -84,7 +84,7 @@ If you use this code or data, please cite our paper:
   journal={arXiv preprint arXiv:2507.05063},
   year={2025}
 }
-
+```
 
 ---
 ## 📜 License
