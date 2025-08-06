@@ -10,7 +10,12 @@ Biomedical datasets often contain a large sample imbalance and are subject to st
 
 We demonstrate how synthetic images generated with a fine-tuned stable diffusion model using LoRA weights when guided by real few-shot samples of the target white blood cell classes, can enhance classifier performance for limited data.
 
-When training a ResNet classifier, accuracy increased from 27.3\% to 78.4\% (+51.1\%) by adding 5000 synthetic images per class to a small and highly imbalanced real dataset. For a CLIP-based classifier, the accuracy improved from 61.8\% to 76.8\% (+15.0\%). The synthetic images are highly similar to real images, and they can help overcome dataset limitations, enhancing model generalization. Our results establish synthetic images as a tool in biomedical research, improving machine learning models, and facilitating medical diagnosis and research.
+When training a ResNet classifier, accuracy increased from 27.3% to 78.4% (+51.1%) by adding 5000 synthetic images per class to a small and highly imbalanced real dataset. For a CLIP-based classifier, the accuracy improved from 61.8% to 76.8% (+15.0%).
+
+The synthetic images are highly similar to real images, and they can help overcome dataset limitations, enhancing model generalization. Our results establish synthetic images as a tool in biomedical research, improving machine learning models, and facilitating medical diagnosis and research.
+
+
+
 ---
 
 ## 🧪 Example: Synthetic White Blood Cell Images
