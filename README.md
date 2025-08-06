@@ -48,6 +48,9 @@ If you have any questions or need further information, feel free to contact me a
 
 ---
 
+
 ## Code Acknowledgement
-This project uses code and resources from the DataDream repository. We thank the authors for making their work publicly available.
+
+This project uses code and resources adapted from the [DataDream repository](https://github.com/ExplainableML/DataDream).  
+We thank the authors for making their work publicly available and for their valuable contributions to the field.
 
