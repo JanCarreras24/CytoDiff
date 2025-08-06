@@ -53,6 +53,7 @@ Install all required dependencies listed in the `requirements/` directory. It is
 
 ```bash
 pip install -r requirements/requirements.txt
+```
 
 ## 📂 Repository Structure
 
