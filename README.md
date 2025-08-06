@@ -22,7 +22,7 @@ Install all required packages listed in the `requirements/` directory. Using a v
 
 ```bash
 pip install -r requirements/requirements.txt
-
+```
 
 ---
 
