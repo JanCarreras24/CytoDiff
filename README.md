@@ -38,11 +38,6 @@ CytoDiff/
 
 ```
 
-## 📎 Supplementary Material
-
-- 📄 [Main Manuscript](https://github.com/JanCarreras24/Final-Degree-Project/releases): Full project report
-- 📑 [Supplementary Material](https://github.com/JanCarreras24/Final-Degree-Project/releases): Additional tables and figures
-
 ---
 
 
@@ -51,6 +46,7 @@ CytoDiff/
 This repository is intended for academic and research purposes only.  
 If you have any questions or need further information, feel free to contact me at **jancarreras24@gmail.com**.
 
+---
 
 ## Code Acknowledgement
 This project uses code and resources from the DataDream repository. We thank the authors for making their work publicly available.
