@@ -73,6 +73,20 @@ CytoDiff/
 ---
 
 
+## 📚 Citation
+
+If you use this code or data, please cite our paper:
+
+```bibtex
+@article{boada2025ai,
+  title={AI-Driven Cytomorphology Image Synthesis for Medical Diagnostics},
+  author={Boada, Jan Carreras and Umer, Rao Muhammad and Marr, Carsten},
+  journal={arXiv preprint arXiv:2507.05063},
+  year={2025}
+}
+
+
+---
 ## 📜 License
 
 This repository is intended for academic and research purposes only.  
